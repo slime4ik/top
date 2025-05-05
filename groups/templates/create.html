@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Group{% endblock %}
+
+{% block content %}
+<style>
+    form {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 25px;
+        border-radius: 12px;
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        color: #f1f1f1;
+    }
+
+    form h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #f8f8f8;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px 14px;
+        margin-bottom: 18px;
+        background-color: #2a2a2a;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    input[type="text"]::placeholder {
+        color: #888;
+    }
+
+    .logo-preview {
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .logo-preview img {
+        width: 420px;
+        height: 420px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #333;
+    }
+
+    button.sm[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #3b3b3b;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    button.sm[type="submit"]:hover {
+        background-color: #505050;
+    }
+</style>
+
+<form method="POST" enctype="multipart/form-data">
+    <h2>Create New Group</h2>
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div class="logo-preview">
+        {% comment %} <h3>Logo Preview</h3> {% endcomment %}
+        <img id="logoPreview" src="{% static 'img/placeholder.png' %}" alt="Logo Preview">
+    </div>
+
+    <button type="submit" class='sm'>Create Group</button>
+</form>
+
+<script>
+    const logoInput = document.querySelector('input[name="logo"]');
+    const logoPreview = document.getElementById('logoPreview');
+
+    logoInput.addEventListener('change', function() {
+        const file = logoInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                logoPreview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

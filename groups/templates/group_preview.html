@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block content %}
+<style>
+    .group-card {
+        max-width: 900px;
+        margin: 50px auto;
+        background-color: #1e1e1e;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        color: #f0f0f0;
+    }
+
+    .group-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+
+    .creator-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .creator-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #555;
+    }
+
+    .creator-name a {
+        color: #ddd;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    .creator-name a:hover {
+        text-decoration: underline;
+        color: #fff;
+    }
+
+    .group-logo {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    .group-logo img {
+        border-radius: 14px;
+        width: 100%;
+        max-width: 420px;
+        height: auto;
+    }
+
+    .group-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .group-description {
+        font-size: 1.1rem;
+        color: #c8c8c8;
+        line-height: 1.6;
+        text-align: center;
+        white-space: pre-line;
+        margin-bottom: 30px;
+    }
+
+    .join-button {
+        display: block;
+        width: fit-content;
+        margin: 0 auto;
+        padding: 12px 28px;
+        font-size: 1rem;
+        background-color: #3a9fff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .join-button:hover {
+        background-color: #2f84d6;
+    }
+
+    @media (max-width: 600px) {
+        .group-title {
+            font-size: 1.8rem;
+        }
+
+        .group-description {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="group-card">
+
+    <div class="group-header">
+        <div class="creator-info">
+            {% if group.creator.avatar %}
+                {% thumbnail group.creator.avatar "48x48" crop="center" as im %}
+                    <img src="{{ im.url }}" alt="{{ group.creator.nickname }}" class="creator-avatar">
+                {% endthumbnail %}
+            {% endif %}
+            <div class="creator-name">
+                <a href="{% url 'accounts:profile_check' group.creator.id group.creator.slug %}">
+                    @{{ group.creator.nickname }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="group-logo">
+        {% if group.logo %}
+            {% thumbnail group.logo "420x420" crop="center" as im %}
+                <img src="{{ im.url }}" alt="{{ group.name }}">
+            {% endthumbnail %}
+        {% else %}
+            <div style="width:420px;height:420px;background:#333;color:#fff;
+                display:flex;align-items:center;justify-content:center;
+                font-size:6rem;border-radius:14px;">
+                {{ group.name|first|upper }}
+            </div>
+        {% endif %}
+    </div>
+
+    <h1 class="group-title">{{ group.name }}</h1>
+
+    {% if group.about %}
+        <p class="group-description">{{ group.about|linebreaksbr }}</p>
+    {% else %}
+        <p class="group-description">No description yet.</p>
+    {% endif %}
+
+    <a href="{% url 'groups:join_group' group.id group.slug %}" class="join-button">Join Group</a>
+</div>
+{% endblock %}

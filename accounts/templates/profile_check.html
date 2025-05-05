@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+<style>
+    /* Base styles */
+    .profile-wrapper {
+        background-color: #0a0a0a;
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .profile-card {
+        width: 100%;
+        max-width: 900px;
+        background: #1e1e1e;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        border: 1px solid #333;
+    }
+    
+    .profile-banner {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        background-color: #2a2a2a;
+    }
+    
+    .profile-content {
+        padding: 0 30px 30px;
+        position: relative;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: flex-start;
+        margin-top: -70px;
+        margin-bottom: 25px;
+    }
+    
+    .profile-avatar {
+        flex-shrink: 0;
+        margin-right: 25px;
+        position: relative;
+    }
+    
+    .avatar-img {
+        border-radius: 50%;
+        border: 4px solid #1e1e1e;
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        background-color: #2a2a2a;
+    }
+    
+    .profile-main {
+        flex-grow: 1;
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #f1f1f1;
+        margin-bottom: 8px;
+    }
+    
+    .profile-bio {
+        font-size: 1rem;
+        color: #aaa;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+    
+    /* Info sections */
+    .info-section {
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        color: #f1f1f1;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #333;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .info-item {
+        background-color: #2a2a2a;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border-left: 3px solid #6c5ce7;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: #f1f1f1;
+        font-weight: 500;
+    }
+    
+    /* Social links */
+    .social-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .social-link {
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        background-color: #2a2a2a;
+        border-radius: 6px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    
+    .social-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .social-icon {
+        margin-right: 8px;
+        font-size: 1rem;
+    }
+    
+    .github { background-color: #333; }
+    .github:hover { background-color: #444; }
+    .vk { background-color: #4a76a8; }
+    .vk:hover { background-color: #5b87b8; }
+    .telegram { background-color: #2aabee; }
+    .telegram:hover { background-color: #3bb8ff; }
+    
+    /* Skills */
+    .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .skill-tag {
+        background-color: #6c5ce7;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    /* Edit button */
+    .edit-profile-btn {
+        background-color: #6c5ce7;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .edit-profile-btn:hover {
+        background-color: #5d4acb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-wrapper {
+            padding: 10px;
+        }
+        
+        .profile-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: -60px;
+        }
+        
+        .profile-avatar {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+        
+        .profile-banner {
+            height: 160px;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .skill-tag {
+            background-color: #6c5ce7;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .skill-icon {
+            font-size: 0.9rem;
+        }
+        
+        /* Skill-specific colors */
+        .skill-python { background-color: #3776ab; }
+        .skill-js { background-color: #f0db4f; color: #323330; }
+        .skill-html { background-color: #e34c26; }
+        .skill-css { background-color: #264de4; }
+        .skill-react { background-color: #61dbfb; color: #282c34; }
+        .skill-django { background-color: #092e20; }
+        .skill-sql { background-color: #00758f; }
+        .skill-git { background-color: #f34f29; }  
+        .profile-content {
+            padding: 0 20px 20px;
+        }
+    }
+</style>
+
+<div class="profile-wrapper">
+    <div class="profile-card">
+        <!-- Profile banner -->
+        <div class="profile-banner" 
+             style="background-image: {% if profile_user.background_image %}url('{{ profile_user.background_image.url }}'){% else %}linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%){% endif %};">
+        </div>
+        
+        <div class="profile-content">
+            <!-- Profile header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {% thumbnail profile_user.avatar "150x150" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{ profile_user.nickname }}" class="avatar-img">
+                    {% endthumbnail %}
+                </div>
+                
+                <div class="profile-main">
+                    <h1 class="profile-name">{{ profile_user.nickname }}</h1>
+                    <p class="profile-bio">
+                        {{ profile_user.bio|default:"This user hasn't added any information yet" }}
+                    </p>
+                    
+                    {% if request.user == profile_user %}
+                        <a href="{% url 'accounts:profile_edit' %}" class="edit-profile-btn">
+                            Edit Profile
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Basic info -->
+            <div class="info-section">
+                <h3 class="section-title">Basic Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Gender</div>
+                        <div class="info-value">
+                            {{ profile_user.get_gender_display|default:"Not specified" }}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Time Zone</div>
+                        <div class="info-value">
+                            {{ profile_user.time_zone|default:"Not specified" }}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Member since</div>
+                        <div class="info-value">
+                            {{ profile_user.date_joined|date:"M d, Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Skills -->
+<!-- Skills Section -->
+{% if profile_user.skills.exists %}
+<div class="info-section">
+    <h3 class="section-title">Skills</h3>
+    <div class="skills-list">
+        {% for skill in profile_user.skills.all %}
+            <span class="skill-tag">
+                <i class="{{ skill.icon }}"></i>
+                {{ skill.name }}
+            </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+            <!-- Social links -->
+            {% if profile_user.github or profile_user.vk or profile_user.telegram %}
+            <div class="info-section">
+                <h3 class="section-title">Social Media</h3>
+                <div class="social-links">
+                    {% if profile_user.github %}
+                        <a href="{{ profile_user.github }}" target="_blank" class="social-link github">
+                            <i class="fab fa-github social-icon"></i>
+                            GitHub
+                        </a>
+                    {% endif %}
+                    
+                    {% if profile_user.vk %}
+                        <a href="{{ profile_user.vk }}" target="_blank" class="social-link vk">
+                            <i class="fab fa-vk social-icon"></i>
+                            VK
+                        </a>
+                    {% endif %}
+                    
+                    {% if profile_user.telegram %}
+                        <a href="https://t.me/{{ profile_user.telegram }}" target="_blank" class="social-link telegram">
+                            <i class="fab fa-telegram social-icon"></i>
+                            @{{ profile_user.telegram }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+// Smooth element appearance
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.profile-banner, .profile-header, .info-section');
+    elements.forEach((el, index) => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

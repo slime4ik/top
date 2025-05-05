@@ -1,0 +1,144 @@
+/* Основные стили для темного фона */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212; /* Темный фон */
+    color: #e0e0e0; /* Светлый текст */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Стили для формы */
+form {
+    background-color: #1f1f1f; /* Темно-серый фон для формы */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Заголовок формы */
+form h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #ffffff; /* Белый цвет для заголовка */
+}
+
+/* Стили для полей ввода */
+input[type="email"], input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="email"]:focus, input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #4caf50; /* Зеленый фокус для полей */
+    outline: none;
+}
+
+/* Стили для кнопок */
+button {
+    background-color: #4caf50; /* Зеленый фон для кнопок */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #45a049; /* Темнее при наведении */
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Стили для сообщений об ошибках */
+.error {
+    background-color: #e74c3c; /* Красный фон для ошибок */
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.error-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Стили для информационных сообщений */
+.time-left-message {
+    font-size: 14px;
+    color: #ff6347; /* Оранжевый цвет для информационных сообщений */
+    margin-top: 10px;
+}
+
+/* Сообщения о времени ожидания */
+.time-left-message span {
+    font-weight: bold;
+}
+
+/* Стили для общего контейнера */
+.login-container {
+    padding: 20px;
+}
+
+/* Стили для сообщений о неверном коде */
+.warning {
+    background-color: #f39c12; /* Желтый фон для предупреждений */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.warning-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Стили для успешных сообщений */
+.success {
+    background-color: #28a745; /* Зеленый фон для успешных сообщений */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.success-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}

@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static thumbnail %}
+
+{% block content %}
+<style>
+  .task-detail-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    color: #f1f5f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .task-card {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .task-creator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .creator-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .creator-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .creator-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #e2e8f0;
+  }
+
+  .creator-role {
+    font-size: 0.9rem;
+    color: #94a3b8;
+  }
+
+  .task-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+  }
+
+  .task-description {
+    color: #cbd5e1;
+    line-height: 1.6;
+    padding: 1rem;
+    background: #334155;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+
+  .subtask-form-container {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #e2e8f0;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    color: #f1f5f9;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+  }
+
+  textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .file-upload-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #2563eb;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: center;
+  }
+
+  .file-upload-label:hover {
+    background: #1d4ed8;
+  }
+
+  .file-name {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 1rem;
+  }
+
+  .submit-btn:hover {
+    background: #059669;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    color: #60a5fa;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+</style>
+
+<div class="task-detail-container">
+  <!-- Карточка задачи -->
+  <div class="task-card">
+    <div class="task-header">
+      <div>
+        <h1 class="task-title">{{ task.title }}</h1>
+      </div>
+      <div class="task-creator">
+        {% thumbnail task.creator.avatar "80x80" crop="center" as im %}
+          <img src="{{ im.url }}" class="creator-avatar" alt="Аватар {{ task.creator.nickname }}">
+        {% endthumbnail %}
+        <div class="creator-info">
+          <span class="creator-name">{{ task.creator.nickname }}</span>
+          <span class="creator-role">Создатель задачи</span>
+        </div>
+      </div>
+    </div>
+
+    {% if task.description %}
+      <div class="task-description">
+        {{ task.description|linebreaks }}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Форма создания подзадачи -->
+  <div class="subtask-form-container">
+    <h2 class="form-title">Создать подзадачу</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="id_title" class="form-label">Название подзадачи</label>
+        <input type="text" name="title" id="id_title" class="form-control" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="id_description" class="form-label">Описание</label>
+        <textarea name="description" id="id_description" class="form-control" rows="4"></textarea>
+      </div>
+      
+      <div class="form-group">
+        {% comment %} <label for="id_user" class="form-label">Исполнители</label>
+        <select name="user" id="id_user" class="form-control" multiple>
+          {% for member in task.group.members.all %}
+            <option value="{{ member.id }}">{{ member.nickname }}</option>
+          {% endfor %} {% endcomment %}
+        </select>
+        {% comment %} <small style="color: #94a3b8; display: block; margin-top: 0.5rem;">
+          Удерживайте Ctrl (Windows) или Command (Mac) для выбора нескольких исполнителей
+        </small> {% endcomment %}
+      </div>
+      
+      <div class="file-upload-wrapper">
+        <input type="file" name="files" id="id_files" style="display: none;" onchange="showFileName()">
+        <label for="id_files" class="file-upload-label">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+          Прикрепить файл
+        </label>
+        <div id="file-name" class="file-name"></div>
+      </div>
+      
+      <button type="submit" class="submit-btn">Создать подзадачу</button>
+    </form>
+    
+    <a href="{% url 'groups:group_detail' id=task.group.id slug=task.group.slug %}" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+      Вернуться к задаче
+    </a>
+  </div>
+</div>
+
+<script>
+  function showFileName() {
+    const input = document.getElementById('id_files');
+    const fileNameDiv = document.getElementById('file-name');
+    if (input.files.length > 0) {
+      fileNameDiv.textContent = `Выбран файл: ${input.files[0].name}`;
+    } else {
+      fileNameDiv.textContent = '';
+    }
+  }
+</script>
+{% endblock %}

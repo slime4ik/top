@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}О Taskly{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Быстрое меню -->
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <a href="#about" class="btn btn-sm btn-outline-primary">О платформе</a>
+                <a href="#roles" class="btn btn-sm btn-outline-primary">Роли</a>
+                <a href="#tasks" class="btn btn-sm btn-outline-primary">Задачи</a>
+                <a href="#groups" class="btn btn-sm btn-outline-primary">Группы</a>
+                <a href="#chat" class="btn btn-sm btn-outline-primary">Чат</a>
+                <a href="#rules" class="btn btn-sm btn-outline-primary">Правила</a>
+            </div>
+
+            <div class="card shadow-sm">
+                <!-- Основная информация -->
+                <div class="card-body">
+                    <section id="about" class="mb-4">
+                        <h3 class="h5 fw-bold mb-3">Taskly — управление задачами для команд</h3>
+                        <div class="d-flex align-items-start mb-3">
+                            <span class="badge bg-primary me-2">1</span>
+                            <p class="mb-0">Платформа для совместной работы над задачами с лимитом 50 участников на группу</p>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-primary me-2">2</span>
+                            <p class="mb-0">Простая система делегирования и отслеживания прогресса</p>
+                        </div>
+                    </section>
+
+                    <hr class="my-4">
+
+                    <!-- Роли -->
+                    <section id="roles" class="mb-4">
+                        <h4 class="h5 fw-bold mb-3">Роли участников</h4>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <h5 class="h6 fw-bold">Создатель</h5>
+                                    <ul class="small ps-3 mb-0">
+                                        <li>Создает группу</li>
+                                        <li>Назначает админов</li>
+                                        <li>Управляет настройками</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <h5 class="h6 fw-bold">Администратор</h5>
+                                    <ul class="small ps-3 mb-0">
+                                        <li>Управляет задачами</li>
+                                        <li>Принимает участников</li>
+                                        <li>Модерирует контент</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light">
+                                    <h5 class="h6 fw-bold">Участник</h5>
+                                    <ul class="small ps-3 mb-0">
+                                        <li>Берет задачи</li>
+                                        <li>Общается в чате</li>
+                                        <li>Отслеживает прогресс</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <hr class="my-4">
+
+                    <!-- Задачи -->
+                    <section id="tasks" class="mb-4">
+                        <h4 class="h5 fw-bold mb-3">Как работают задачи</h4>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="p-3 border-start border-3 border-primary">
+                                    <h5 class="h6 fw-bold">Взятие задач</h5>
+                                    <p class="small mb-0">Любой участник может взять задачу. Ограничений по количеству нет — берите столько, сколько сможете выполнить.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border-start border-3 border-success">
+                                    <h5 class="h6 fw-bold">Статусы</h5>
+                                    <p class="small mb-0">Ожидание → В работе → Выполнено. Можно создавать подзадачи для сложных проектов.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <hr class="my-4">
+
+                    <!-- Группы -->
+                    <section id="groups" class="mb-4">
+                        <h4 class="h5 fw-bold mb-3">Типы групп</h4>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded">
+                                    <h5 class="h6 fw-bold d-flex align-items-center">
+                                        <i class="fas fa-lock-open text-success me-2"></i>
+                                        Открытые
+                                    </h5>
+                                    <ul class="small ps-3 mb-0">
+                                        <li>Доступ для всех</li>
+                                        <li>Видимость публичная</li>
+                                        <li>До 50 участников</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded">
+                                    <h5 class="h6 fw-bold d-flex align-items-center">
+                                        <i class="fas fa-lock text-danger me-2"></i>
+                                        Закрытые
+                                    </h5>
+                                    <ul class="small ps-3 mb-0">
+                                        <li>По приглашению/коду</li>
+                                        <li>Видимость приватная</li>
+                                        <li>До 50 участников</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <hr class="my-4">
+
+                    <!-- Чат -->
+                    <section id="chat" class="mb-4">
+                        <h4 class="h5 fw-bold mb-3">Групповой чат</h4>
+                        <div class="alert alert-info p-3 small">
+                            <div class="d-flex">
+                                <i class="fas fa-comments me-3 mt-1"></i>
+                                <div>
+                                    <p class="fw-bold mb-2">В каждой группе есть свой онлайн-чат:</p>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Общение в реальном времени</li>
+                                        <li>Обсуждение задач и проектов</li>
+                                        <li>Уведомления о новых сообщениях</li>
+                                        <li>Доступ только для участников группы</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <hr class="my-4">
+
+                    <!-- Правила -->
+                    <section id="rules">
+                        <h4 class="h5 fw-bold mb-3">Основные правила</h4>
+                        <div class="p-3 bg-light rounded small">
+                            <ol class="mb-0">
+                                <li>Берите только посильные задачи</li>
+                                <li>Соблюдайте сроки выполнения</li>
+                                <li>Уважайте других участников</li>
+                                <li>Не передавайте коды доступа</li>
+                                <li>Сообщайте о проблемах админам</li>
+                            </ol>
+                        </div>
+                    </section>
+                </div>
+                
+                <div class="card-footer bg-transparent text-center py-3">
+                    <p class="small mb-0">Taskly | <a href="#" class="text-decoration-none">Поддержка</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    section h4 {
+        color: #333;
+    }
+    hr {
+        opacity: 0.2;
+    }
+    .badge {
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Плавная прокрутка к якорям
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}

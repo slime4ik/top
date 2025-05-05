@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+
+{% block title %}My Groups{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .my-groups-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .groups-count {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: #333;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 0 0 0 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+      color: silver;
+      margin-bottom: 20px;
+    }
+
+    p.description {
+      text-align: center;
+      font-size: 1.1rem;
+      color: silver;
+      margin-bottom: 30px;
+    }
+
+    .create-group-link {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .create-group-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .create-group-btn:hover {
+      background-color: #45a049;
+    }
+
+    .groups-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .group-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    .group-card:hover {
+      transform: scale(1.03);
+    }
+
+    .group-logo {
+      width: 420px;
+      height: 420px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 8px;
+      background-color: #f8f8f8;
+    }
+
+    .group-logo.no-logo {
+      background-color:rgb(0, 0, 0);  /* Цвет фона для дефолтного лого */
+      font-size: 3rem;  /* Размер текста */
+      color: white;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .group-info {
+      text-align: center;
+    }
+
+    .group-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .group-tags {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      background-color: #eaeaea;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .tag:hover {
+      background-color: #ccc;
+    }
+
+    .no-groups-message {
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+      margin-top: 40px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="my-groups-container">
+    <div class="groups-count">
+      Total: {{ total }}
+    </div>
+
+    <h1>My Groups</h1>
+    <p class="description">Manage and view all the groups you belong to or have created.</p>
+
+    <div class="create-group-link">
+      <a href="{% url 'groups:create' %}" class="create-group-btn">Create New Group</a>
+    </div>
+
+    <div class="groups-list">
+      {% for group in groups %}
+      <a href="{{ group.get_absolute_url }}">
+        <div class="group-card">
+          <div class="group-logo {% if not group.logo %}no-logo{% endif %}">
+            {% if group.logo %}
+              {% thumbnail group.logo "420x420" crop="center" as im %}
+                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ group.name }} Logo" class="logo-img">
+              {% endthumbnail %}
+            {% else %}
+              {{ group.name|slice:":1"|upper }}  <!-- Первая буква названия группы -->
+            {% endif %}
+          </div>
+          <div class="group-info">
+            <h3 class="group-name">{{ group.name }}</h3>
+            <div class="group-tags">
+              {% for tag in group.tags.all %}
+                <span class="tag">{{ tag.name }}</span>
+              {% empty %}
+                <span class="tag">No tags</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+        <p class="no-groups-message">You haven't joined or created any groups yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

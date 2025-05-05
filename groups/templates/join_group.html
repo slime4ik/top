@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Join Group | Taskly{% endblock %}
+
+{% block content %}
+<div class="join-container">
+  <h2>Join a Group</h2>
+
+  {# Вывод сообщений из messages framework #}
+  {% if messages %}
+    <ul class="messages">
+      {% for msg in messages %}
+        <li class="message {{ msg.tags }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" class="join-form" novalidate>
+    {% csrf_token %}
+
+    <div class="form-group{% if form.code.errors %} has-error{% endif %}">
+      {{ form.code.label_tag }}
+      {{ form.code }}
+      {% for err in form.code.errors %}
+        <div class="error-msg">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn-join">Join</button>
+  </form>
+</div>
+
+<style>
+.join-container {
+  max-width: 400px;
+  margin: 80px auto;
+  background: #181818;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.5);
+  color: #eee;
+  font-family: sans-serif;
+}
+.join-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.join-form .form-group {
+  margin-bottom: 15px;
+}
+.join-form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #ccc;
+}
+.join-form input {
+  width: 100%;
+  padding: 10px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+}
+.has-error input {
+  border-color: #f87171;
+}
+.error-msg {
+  color: #f87171;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+.messages {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.message {
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+.message.success { background: #2d6a4f; color: #d8f3dc; }
+.message.info    { background: #1d3557; color: #a8dadc; }
+.message.error   { background: #6a040f; color: #f8d7da; }
+.btn-join {
+  width: 100%;
+  padding: 12px;
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-join:hover {
+  background: #6d28d9;
+}
+</style>
+{% endblock %}

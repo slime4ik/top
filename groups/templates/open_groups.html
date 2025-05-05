@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+{% load thumbnail %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 40px 0 20px;
+        font-size: 28px;
+        color: #f0f0f0;
+    }
+
+    .group-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        padding: 0 16px 40px;
+        max-width: 1400px;
+        margin: auto;
+    }
+
+    .group-card {
+        background-color: #1e1e1e;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
+        transition: 0.2s ease;
+    }
+
+    .group-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
+    }
+
+    .group-logo img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        background-color: #2a2a2a;
+    }
+
+    .group-info {
+        padding: 10px;
+    }
+
+    .group-title {
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 6px;
+        text-decoration: none;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .group-tags {
+        margin: 4px 0;
+    }
+
+    .group-tag {
+        display: inline-block;
+        background-color: #333;
+        color: #ccc;
+        padding: 2px 6px;
+        margin: 1px 2px 1px 0;
+        border-radius: 6px;
+        font-size: 10px;
+    }
+
+    .group-meta {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+        line-height: 1.3;
+    }
+
+    .pagination {
+        text-align: center;
+        margin: 20px 0 30px;
+    }
+
+    .pagination span,
+    .pagination a {
+        display: inline-block;
+        margin: 0 3px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        background-color: #1e1e1e;
+        color: #ccc;
+        text-decoration: none;
+        transition: 0.2s;
+        font-size: 13px;
+    }
+
+    .pagination a:hover {
+        background-color: #333;
+        color: #fff;
+    }
+
+    .pagination .current {
+        background-color: #444;
+        color: #fff;
+        font-weight: bold;
+    }
+</style>
+
+<h1>Открытые группы</h1>
+
+<div class="group-list">
+    {% for group in page_obj %}
+    <div class="group-card">
+        <a href="{% url 'groups:group_detail' group.id group.slug %}">
+        <div class="group-logo">
+            {% if group.logo %}
+                {% thumbnail group.logo "420x420" crop="center" as thumb %}
+                    <img src="{{ thumb.url }}" alt="{{ group.name }}">
+                {% endthumbnail %}
+            {% endif %}
+        </div>
+    </a>
+        <div class="group-info">
+            <a href="#" class="group-title">{{ group.name }}</a>
+
+            {% if group.tags.exists %}
+            <div class="group-tags">
+                {% for tag in group.tags.all %}
+                    <span class="group-tag">#{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="group-meta">
+                Участников: {{ group.members.count }}<br>
+                Создана: {{ group.created_at|date:"d.m.Y" }}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p style="text-align:center; color:#888;">Нет открытых групп.</p>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo;</a>
+        <a href="?page={{ page_obj.previous_page_number }}">‹</a>
+    {% endif %}
+
+    {% for i in page_obj.paginator.page_range %}
+        {% if i >= page_obj.number|add:'-2' and i <= page_obj.number|add:'2' %}
+            {% if page_obj.number == i %}
+                <span class="current">{{ i }}</span>
+            {% else %}
+                <a href="?page={{ i }}">{{ i }}</a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

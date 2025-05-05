@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+<div style="background-color: #1e1e1e; color: #eee; padding: 1.5rem; border-radius: 12px; max-width: 700px; margin: auto; font-family: sans-serif;">
+    <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 1rem;">Group Members – "{{ group.name }}"</h2>
+
+    <div>
+        <h3 style="color: #ccc; font-size: 1.2rem;">Creator</h3>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            {% thumbnail creator.avatar "80x80" crop="center" as im %}
+                <a href="{% url 'accounts:profile_check' creator.id creator.slug %}">
+                    <img src="{{ im.url }}" alt="{{ creator.nickname }}" style="border-radius: 50%; width: 48px; height: 48px;">
+                </a>
+            {% endthumbnail %}
+            <a href="{% url 'accounts:profile_check' creator.id creator.slug %}" style="color: #4ea9ff;">{{ creator.nickname }}</a>
+            <span style="margin-left: auto; color: #888;">(creator)</span>
+        </div>
+    </div>
+
+    {% if admins %}
+        <div>
+            <h3 style="color: #ccc; font-size: 1.2rem;">Admins</h3>
+            <ul style="list-style: none; padding: 0; margin-bottom: 1rem;">
+                {% for user in admins %}
+                    <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        {% thumbnail user.avatar "80x80" crop="center" as im %}
+                            <a href="{% url 'accounts:profile_check' user.id user.slug %}">
+                                <img src="{{ im.url }}" alt="{{ user.nickname }}" style="border-radius: 50%; width: 48px; height: 48px;">
+                            </a>
+                        {% endthumbnail %}
+                        <a href="{% url 'accounts:profile_check' user.id user.slug %}" style="color: #4ea9ff;">{{ user.nickname }}</a>
+                        {% if request.user == group.creator %}
+                            <a href="{% url 'groups:demote_user' group.id user.id %}" style="margin-left:auto; color: orange;">Demote</a>
+                            <a href="{% url 'groups:kick_user' group.id user.id %}" style="margin-left: 10px; color: red;">Kick</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if members %}
+        <div>
+            <h3 style="color: #ccc; font-size: 1.2rem;">Members</h3>
+            <ul style="list-style: none; padding: 0;">
+                {% for user in members %}
+                    <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        {% thumbnail user.avatar "80x80" crop="center" as im %}
+                            <a href="{% url 'accounts:profile_check' user.id user.slug %}">
+                                <img src="{{ im.url }}" alt="{{ user.nickname }}" style="border-radius: 50%; width: 48px; height: 48px;">
+                            </a>
+                        {% endthumbnail %}
+                        <a href="{% url 'accounts:profile_check' user.id user.slug %}" style="color: #4ea9ff;">{{ user.nickname }}</a>
+
+                        {% if request.user == group.creator or request.user in group.admins.all %}
+                            <a href="{% url 'groups:promote_user' group.id user.id %}" style="margin-left:auto; color: lime;">Promote</a>
+                            <a href="{% url 'groups:kick_user' group.id user.id %}" style="margin-left: 10px; color: red;">Kick</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

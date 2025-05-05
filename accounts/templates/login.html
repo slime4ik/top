@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Authentication | Taskly{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 5rem auto;
+        padding: 2rem;
+        background: #2a2a2a;
+        color: #e0e0e0;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .login-container h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: #9d50bb;
+    }
+
+    .login-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .login-container form input[type="text"],
+    .login-container form input[type="password"],
+    .login-container form input[type="email"] {
+        padding: 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #333;
+        color: #e0e0e0;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .login-container form input[type="text"]:focus,
+    .login-container form input[type="password"]:focus,
+    .login-container form input[type="email"]:focus {
+        border-color: #9d50bb;
+        outline: none;
+    }
+
+    .login-container form button {
+        padding: 0.8rem;
+        background: #6e48aa;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .login-container form button:hover {
+        background: #9d50bb;
+    }
+
+    .errorlist {
+        color: #f44336;
+        padding-left: 0;
+        margin-top: 1rem;
+        list-style: none;
+        font-size: 0.9rem;
+    }
+
+    .errorlist li {
+        margin-bottom: 0.6rem;
+    }
+
+    .login-container .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .login-container .form-group label {
+        font-size: 0.9rem;
+        text-align: left;
+        color: #bbb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Authentication</h2>
+
+    {% if form.errors %}
+        <ul class="errorlist">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if step == 'email' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ email_form.as_p }}
+            </div>
+            <input type="hidden" name="form_type" value="email_form">
+            <button type="submit">Send Code</button>
+        </form>
+
+    {% elif step == 'code_only' or step == 'code_and_nickname' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ code_form.as_p }}
+            </div>
+            <input type="hidden" name="form_type" value="code_form">
+            <button type="submit">Verify Code</button>
+        </form>
+
+    {% elif step == 'nickname' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ nickname_form.as_p }}
+            </div>
+            <input type="hidden" name="form_type" value="nickname_form">
+            <button type="submit">Create Profile</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

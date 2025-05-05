@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Taskly{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #1e1e1e;
+        color: #f0f0f0;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    /* ===================== */
+    /* Header & Navigation */
+    /* ===================== */
+    
+    header {
+        background-color: #2a2a2a;
+        padding: 12px 0;
+    }
+    
+    .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #4da6ff;
+        text-decoration: none;
+    }
+    
+    .nav-link {
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    
+    .nav-link:hover {
+        color: #4da6ff;
+    }
+    
+    /* ===================== */
+    /* User Avatar + Menu */
+    /* ===================== */
+    
+    .user-menu {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .user-button {
+        display: flex;
+        align-items: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        font-size: 14px;
+        gap: 10px;
+    }
+    
+    .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #4da6ff;
+    }
+    
+    .nickname {
+        font-weight: 500;
+    }
+    
+    /* ===================== */
+    /* Dropdown (burger) */
+    /* ===================== */
+    
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 48px;
+        right: 0;
+        background-color: #2b2b2b;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        padding: 12px;
+        z-index: 1000;
+        min-width: 180px;
+    }
+    
+    .dropdown-menu.show {
+        display: block;
+    }
+    
+    .dropdown-menu a,
+    .dropdown-menu button {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        color: #fff;
+        padding: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        font-family: inherit;
+        cursor: pointer;
+    }
+    
+    .dropdown-menu a:hover,
+    .dropdown-menu button:hover {
+        background-color: #3a3a3a;
+        border-radius: 4px;
+    }
+    
+    /* ===================== */
+    /* Main Content Area */
+    /* ===================== */
+    
+    main {
+        padding: 24px 0;
+    }
+    
+    /* ===================== */
+    /* Messages / Alerts */
+    /* ===================== */
+    
+    .messages {
+        margin: 20px 0;
+        font-size: 14px;
+    }
+    
+    .message-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .message {
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        background-color: #2b2b2b;
+        color: #fff;
+    }
+    
+    .message.success { background-color: #4caf50; }
+    .message.error   { background-color: #f44336; }
+    .message.info    { background-color: #2196f3; }
+    .message.warning { background-color: #ff9800; }
+    
+    .message:hover {
+        opacity: 0.8;
+    }
+    .extra-links {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .extra-link {
+        color: #60a5fa;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        background-color: #1e3a8a;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .extra-link:hover {
+        background-color: #2563eb;
+        color: #fff;
+    }
+    
+</style>
+<body>
+    <header>
+        <div class="container header-inner">
+            <div class="nav-left">
+                <a href="{% url 'accounts:home' %}" class="logo">Taskly</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'tasks:user_tasks'%}" class="nav-link">my tasks</a>
+                <a href="{%url 'groups:groups'%}" class="nav-link">my groups</a>
+                <a href="{% url 'groups:open_groups'%}" class="nav-link">look for a group</a>
+                {% endif %}
+            </div>
+    
+            {% if user.is_authenticated %}
+            <div class="extra-links">
+                <a href="{% url 'tasks:create_task' %}" class="extra-link">📋Create task</a>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <div class="user-menu">
+                <button class="user-button" id="userButton">
+                    <img src="{{ user.avatar.url }}" alt="avatar" class="avatar">
+                    <span class="nickname">{{ user.nickname }}</span>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="{% url 'groups:manage' %}">manage my groups</a>
+                    <a href="{%url 'groups:join_group'%}">join group</a>
+                    <a href="{%url 'accounts:profile_edit'%}">me</a>
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">logout</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+    
+
+<main class="container">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<div class="messages">
+    {% if messages %}
+        <ul class="message-list">
+            {% for message in messages %}
+                <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+{% block extra_js %}{% endblock %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userButton = document.getElementById("userButton");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        userButton.addEventListener("click", () => {
+            dropdownMenu.classList.toggle("show");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!userButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove("show");
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Logged out | Taskly{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logout-container {
+        width: 100%;
+        max-width: 500px;
+        margin: 5rem auto;
+        padding: 2rem;
+        background: #222;
+        color: #e0e0e0;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .logout-container h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #9d50bb;
+    }
+
+    .logout-container p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        color: #aaa;
+    }
+
+    .logout-container a {
+        color: #6e48aa;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .logout-container a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+    <h1>You have been logged out</h1>
+    <p>
+        You have successfully logged out from your account. 
+        You can <a href="{% url 'accounts:login' %}">log in again</a> if you'd like to continue.
+    </p>
+</div>
+{% endblock %}

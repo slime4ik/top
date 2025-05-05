@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+
+{% block content %}
+<div class="edit-container">
+  <h1>Редактировать группу</h1>
+
+  <form method="post" enctype="multipart/form-data" class="edit-form">
+    {% csrf_token %}
+
+    <!-- Название -->
+    <div class="form-row">
+      <label for="id_name">Name:</label>
+      {{ group_form.name }}
+      {{ group_form.name.errors }}
+    </div>
+
+    <!-- Логотип -->
+    <div class="form-row">
+      <label for="id_logo">Logo:</label>
+      <!-- собственный file-input без «Clear» и без ссылки -->
+      <input type="file" name="logo" id="id_logo" accept="image/*">
+      {{ group_form.logo.errors }}
+    </div>
+
+    <!-- Превью логотипа -->
+    <div class="logo-preview">
+      {% if group.logo %}
+        {% thumbnail group.logo "420x420" crop="center" as thumb %}
+          <img id="logo-preview" src="{{ thumb.url }}" alt="Logo Preview">
+        {% endthumbnail %}
+      {% else %}
+        <div id="logo-preview" class="logo-placeholder">
+          {{ group.name|first|upper }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Теги (если есть в форме) -->
+    {% if group_form.tags %}
+      <div class="form-row">
+        <label>Tags:</label>
+        {{ group_form.tags }}
+        {{ group_form.tags.errors }}
+      </div>
+    {% endif %}
+
+    <!-- Описание -->
+    <div class="form-row">
+      <label for="id_description">About:</label>
+      {{ group_form.about }}
+      {{ group_form.about.errors }}
+    </div>
+
+    <button type="submit" class="save-button">Сохранить изменения</button>
+  </form>
+</div>
+
+<script>
+  // При выборе нового файла — обновляем <img id="logo-preview">
+  document.getElementById('id_logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let img = document.getElementById('logo-preview');
+      // если превью ещё не <img>, заменяем блок-заглушку
+      if (img.tagName !== 'IMG') {
+        const wrapper = img.parentNode;
+        img.remove();
+        img = document.createElement('img');
+        img.id = 'logo-preview';
+        wrapper.appendChild(img);
+      }
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
+
+<style>
+  .edit-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #1e1e1e;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    color: #eee;
+  }
+  .edit-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .form-row {
+    margin-bottom: 18px;
+  }
+  .form-row label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #ccc;
+  }
+  .form-row input[type="text"],
+  .form-row textarea {
+    width: 100%;
+    padding: 10px;
+    background: #2e2e2e;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #eee;
+  }
+  .form-row input[type="file"] {
+    width: 100%;
+    background: #2e2e2e;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px;
+    color: #eee;
+    cursor: pointer;
+  }
+  .logo-preview {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .logo-preview img,
+  .logo-placeholder {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #444;
+  }
+  .logo-placeholder {
+    line-height: 200px;
+    font-size: 80px;
+    background: #444;
+    user-select: none;
+    color: #eee;
+  }
+  .save-button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #4caf50;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .save-button:hover {
+    background: #45a049;
+  }
+</style>
+{% endblock %}
