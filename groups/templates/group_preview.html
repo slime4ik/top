@@ -144,6 +144,6 @@
         <p class="group-description">No description yet.</p>
     {% endif %}
 
-    <a href="{% url 'groups:join_group' group.id group.slug %}" class="join-button">Join Group</a>
+    <a href="{% url 'groups:open_join_group' group.id group.slug %}" class="join-button">Join Group</a>
 </div>
 {% endblock %}

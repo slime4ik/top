@@ -19,11 +19,11 @@
                 <h3 class="group-name">{{ group.name }}</h3>
                 <div class="group-role">
                     {% if user == group.creator %}
-                        <span class="role-badge creator">👑 Создатель</span>
+                        <span class="role-badge creator">👑 Creator</span>
                     {% elif user in group.admins.all %}
-                        <span class="role-badge admin">🔧 Админ</span>
+                        <span class="role-badge admin">🔧 Admin</span>
                     {% elif user in group.members.all %}
-                        <span class="role-badge member">👥 Участник</span>
+                        <span class="role-badge member">👥 Member</span>
                     {% endif %}
                 </div>
             </div>

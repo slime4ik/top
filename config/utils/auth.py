@@ -35,7 +35,6 @@ def send_login_code(email, code):
 
     text_content = f'Ваш код для входа: {code}'
     html_content = render_to_string('emails/login_code.html', {'code': code})
-
     msg = EmailMultiAlternatives(subject, text_content, from_email, to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
@@ -46,7 +45,6 @@ def send_login_code_task(email, code):
     subject = 'Ваш код для входа'
     from_email = 'noreply@example.com'
     to = [email]
-
     text_content = f'Ваш код для входа: {code}'
     html_content = render_to_string('emails/login_code.html', {'code': code})
 

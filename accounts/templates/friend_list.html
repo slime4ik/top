@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% load static %}
+{% load thumbnail %}
+
+{% block extra_css %}
+<style>
+    .friend-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .friend-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+    
+    .friend-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .friend-card:hover::before {
+        opacity: 1;
+    }
+    
+    .avatar-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+    }
+    
+    .avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #1e293b;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .friend-card:hover .avatar {
+        border-color: #6366f1;
+        transform: scale(1.05);
+    }
+    
+    .online-status {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #10b981;
+        border: 2px solid #1e293b;
+        z-index: 2;
+    }
+    
+    .friend-name {
+        font-weight: 600;
+        background: linear-gradient(90deg, #ffffff 0%, #e2e8f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.025em;
+    }
+    
+    .last-seen {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+    
+    .empty-state {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+    }
+    
+    .search-btn {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+    }
+    
+    .friend-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 0 16px 16px;
+    }
+    
+    .action-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .message-btn {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .message-btn:hover {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+    
+    .remove-btn {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    .remove-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+    
+    .friend-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    @media (max-width: 768px) {
+        .friend-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
+        
+        .avatar-container {
+            width: 64px;
+            height: 64px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 py-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                    My Friends
+                </h1>
+                <p class="text-sm text-gray-400 mt-2">
+                    All your connections in one place
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+                <span class="px-3 py-1 bg-gray-800 rounded-full text-sm text-gray-300">
+                    {{ friends|length }} friends
+                </span>
+                {% comment %} <a href="{% url 'users:search' %}" class="search-btn px-4 py-2 rounded-full text-white text-sm font-medium">
+                    <i class="fas fa-user-plus mr-2"></i> Add Friends
+                </a> {% endcomment %}
+            </div>
+        </div>
+        
+        {% if friends %}
+            <div class="friend-grid">
+                {% for friend in friends %}
+                    {% ifchanged friend.id %}
+                    <div class="friend-card">
+                        <a href="{% url 'accounts:profile_check' friend.id friend.slug %}" class="block p-4">
+                            <div class="flex flex-col items-center">
+                                <div class="avatar-container mb-3">
+                                    {% thumbnail friend.avatar "160x160" crop="center" as im %}
+                                        <img src="{{ im.url }}" 
+                                             alt="{{ friend.nickname }}" 
+                                             class="avatar">
+                                    {% empty %}
+                                        <img src="{% static 'avatars/default.jpg' %}" 
+                                             alt="{{ friend.nickname }}" 
+                                             class="avatar">
+                                    {% endthumbnail %}
+                                    {% if friend.is_online %}
+                                        <span class="online-status"></span>
+                                    {% endif %}
+                                </div>
+                                <h3 class="friend-name text-center mb-1">
+                                    {{ friend.display_nickname|default:friend.nickname }}
+                                </h3>
+                                <p class="last-seen text-center">
+                                    {% if friend.is_online %}
+                                        <span class="text-green-400">Online now</span>
+                                    {% else %}
+                                        {% if friend.last_activity %}
+                                            Active {{ friend.last_activity|timesince }} ago
+                                        {% else %}
+                                            Offline
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                        <div class="friend-actions">
+                            {% comment %} <a href="{% url 'messaging:create_dialog' friend.id %}" class="action-btn message-btn">
+                                <i class="fas fa-envelope mr-1"></i> Message
+                            </a> {% endcomment %}
+                            <form action="{% url 'accounts:remove_friend' friend.id %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn remove-btn w-full">
+                                    <i class="fas fa-user-minus mr-1"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endifchanged %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state p-8 sm:p-12 text-center">
+                <div class="mx-auto w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
+                    <i class="fas fa-user-friends text-3xl text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-medium text-white mb-2">Your friend list is empty</h3>
+                <p class="text-gray-400 max-w-md mx-auto mb-6">
+                    Start adding friends to see them appear here.
+                </p>
+                <a href="#" class="search-btn px-6 py-3 rounded-full text-white font-medium mx-auto inline-block">
+                    <i class="fas fa-search mr-2"></i> Find Friends
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Friend card animations
+        const cards = document.querySelectorAll('.friend-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = `all 0.5s ease ${index * 0.05}s`;
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // Confirm before removing friend
+        const removeForms = document.querySelectorAll('form[action*="remove_friend"]');
+        removeForms.forEach(form => {
+            form.addEventListener('submit', (e) => {
+                if (!confirm('Are you sure you want to remove this friend?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

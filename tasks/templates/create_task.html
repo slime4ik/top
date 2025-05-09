@@ -2,13 +2,15 @@
 {% load static %}
 
 {% block content %}
+<!-- Подключаем стили flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 <style>
   body {
     background-color: #0f172a;
     color: #f1f5f9;
     font-family: sans-serif;
   }
-
   .form-container {
     max-width: 600px;
     margin: 2rem auto;
@@ -17,23 +19,19 @@
     border-radius: 0.5rem;
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
   }
-
   .form-container h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-align: center;
   }
-
   .form-group {
     margin-bottom: 1rem;
   }
-
   .form-group label {
     display: block;
     margin-bottom: 0.3rem;
     font-weight: 600;
   }
-
   .form-group input,
   .form-group textarea,
   .form-group select {
@@ -44,29 +42,6 @@
     background-color: #334155;
     color: #f1f5f9;
   }
-
-  .form-group input[type="file"] {
-    display: none;
-  }
-
-  .file-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: #2563eb;
-    padding: 0.35rem 0.75rem;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    color: #fff;
-    font-size: 0.85rem;
-  }
-
-  .file-name {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    color: #cbd5e1;
-  }
-
   .submit-btn {
     background-color: #10b981;
     color: white;
@@ -79,17 +54,15 @@
     margin-top: 1rem;
     transition: background-color 0.2s ease;
   }
-
   .submit-btn:hover {
     background-color: #059669;
   }
 </style>
 
 <div class="form-container">
-  <h2>Создать задачу</h2>
+  <h2>Create task</h2>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-
     <div class="form-group">
       <label for="id_group">{{ form.group.label }}</label>
       {{ form.group }}
@@ -106,18 +79,8 @@
     </div>
 
     <div class="form-group">
-      <label for="id_deadline">{{ form.deadline.label }}</label>
-      {{ form.deadline }}
-    </div>
-
-    <div class="form-group">
-      <label for="id_priority">{{ form.priority.label }}</label>
-      {{ form.priority }}
-    </div>
-
-    <div class="form-group">
-      <label for="id_executor">{{ form.executor.label }}</label>
-      {{ form.executor }}
+      <label for="id_deadline">{{ form.dead_line.label }}</label>
+      {{ form.dead_line }}
     </div>
 
     <div class="form-group">
@@ -128,11 +91,19 @@
       <div id="file-name" class="file-name"></div>
     </div>
 
-    <button type="submit" class="submit-btn">Создать</button>
+    <button type="submit" class="submit-btn">Create</button>
   </form>
 </div>
 
+<!-- Подключаем скрипты flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+  flatpickr(".flatpickr", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    minuteIncrement: 15,  // Шаг времени
+  });
+
   function showFileName() {
     const input = document.getElementById('id_files');
     const fileNameDiv = document.getElementById('file-name');
@@ -143,4 +114,5 @@
     }
   }
 </script>
+
 {% endblock %}

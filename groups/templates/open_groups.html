@@ -8,95 +8,111 @@
         background-color: #121212;
         color: #e0e0e0;
         font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
     }
 
     h1 {
         text-align: center;
-        margin: 40px 0 20px;
-        font-size: 28px;
+        margin: 40px 0;
+        font-size: 2rem;
         color: #f0f0f0;
+        letter-spacing: 1px;
     }
 
     .group-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 16px;
-        padding: 0 16px 40px;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        padding: 16px;
         max-width: 1400px;
         margin: auto;
+        transition: all 0.3s ease;
     }
 
     .group-card {
         background-color: #1e1e1e;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
-        transition: 0.2s ease;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .group-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
+        transform: translateY(-5px);
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
     }
 
     .group-logo img {
         width: 100%;
+        height: auto;
         aspect-ratio: 1 / 1;
         object-fit: cover;
-        background-color: #2a2a2a;
+        background-color: #333;
     }
 
     .group-info {
-        padding: 10px;
+        padding: 8px 12px;
     }
 
     .group-title {
-        font-size: 14px;
+        font-size: 1rem;
         font-weight: bold;
         color: #fff;
-        margin-bottom: 6px;
         text-decoration: none;
+        margin-bottom: 6px;
         display: block;
-        line-height: 1.2;
+        transition: color 0.3s ease;
+    }
+
+    .group-title:hover {
+        color: #4caf50;
     }
 
     .group-tags {
         margin: 4px 0;
+        display: flex;
+        flex-wrap: wrap;
     }
 
     .group-tag {
-        display: inline-block;
         background-color: #333;
         color: #ccc;
-        padding: 2px 6px;
-        margin: 1px 2px 1px 0;
-        border-radius: 6px;
+        padding: 4px 8px;
+        margin: 2px 4px;
+        border-radius: 12px;
         font-size: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .group-tag:hover {
+        background-color: #4caf50;
+        color: #fff;
     }
 
     .group-meta {
-        font-size: 11px;
+        font-size: 12px;
         color: #999;
-        margin-top: 4px;
-        line-height: 1.3;
+        margin-top: 8px;
     }
 
     .pagination {
         text-align: center;
-        margin: 20px 0 30px;
+        margin: 30px 0;
+        font-size: 14px;
     }
 
     .pagination span,
     .pagination a {
         display: inline-block;
-        margin: 0 3px;
-        padding: 6px 10px;
-        border-radius: 6px;
+        margin: 0 5px;
+        padding: 6px 12px;
+        border-radius: 12px;
         background-color: #1e1e1e;
         color: #ccc;
         text-decoration: none;
-        transition: 0.2s;
-        font-size: 13px;
+        transition: 0.3s ease;
     }
 
     .pagination a:hover {
@@ -105,9 +121,44 @@
     }
 
     .pagination .current {
-        background-color: #444;
+        background-color: #4caf50;
         color: #fff;
         font-weight: bold;
+    }
+
+    @media (max-width: 1024px) {
+        .group-list {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* На планшетах и маленьких экранах */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .group-list {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* На мобильных устройствах */
+        }
+
+        h1 {
+            font-size: 1.6rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .group-list {
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* На маленьких экранах (смартфоны) */
+            gap: 8px;
+        }
+
+        .group-card {
+            padding: 8px;
+        }
+
+        .group-title {
+            font-size: 0.9rem;
+        }
+
+        .group-meta {
+            font-size: 10px;
+        }
     }
 </style>
 
@@ -117,21 +168,23 @@
     {% for group in page_obj %}
     <div class="group-card">
         <a href="{% url 'groups:group_detail' group.id group.slug %}">
-        <div class="group-logo">
-            {% if group.logo %}
-                {% thumbnail group.logo "420x420" crop="center" as thumb %}
-                    <img src="{{ thumb.url }}" alt="{{ group.name }}">
-                {% endthumbnail %}
-            {% endif %}
-        </div>
-    </a>
+            <div class="group-logo">
+                {% if group.logo %}
+                    {% thumbnail group.logo "420x420" crop="center" as thumb %}
+                        <img src="{{ thumb.url }}" alt="{{ group.name }}">
+                    {% endthumbnail %}
+                {% else %}
+                    <div class="group-placeholder">Без логотипа</div>
+                {% endif %}
+            </div>
+        </a>
         <div class="group-info">
-            <a href="#" class="group-title">{{ group.name }}</a>
+            <a href="{% url 'groups:group_detail' group.id group.slug %}" class="group-title">{{ group.name }}</a>
 
             {% if group.tags.exists %}
             <div class="group-tags">
                 {% for tag in group.tags.all %}
-                    <span class="group-tag">#{{ tag.name }}</span>
+                    <span class="group-tag">{{ tag.name }}</span>
                 {% endfor %}
             </div>
             {% endif %}

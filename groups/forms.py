@@ -33,7 +33,7 @@ class GroupCreateForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ['name', 'logo', 'tags', 'about']
+        fields = ['name', 'logo', 'tags', 'about', 'status']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Group name'}),
             'about': forms.Textarea(attrs={'placeholder': 'smth about your group'})

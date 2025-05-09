@@ -189,15 +189,17 @@
       <div>
         <h1 class="task-title">{{ task.title }}</h1>
       </div>
+      <a href='{% url "accounts:profile_check" task.creator.id task.creator.slug %}'>
       <div class="task-creator">
         {% thumbnail task.creator.avatar "80x80" crop="center" as im %}
           <img src="{{ im.url }}" class="creator-avatar" alt="Аватар {{ task.creator.nickname }}">
         {% endthumbnail %}
         <div class="creator-info">
           <span class="creator-name">{{ task.creator.nickname }}</span>
-          <span class="creator-role">Создатель задачи</span>
+          <span class="creator-role">task creator</span>
         </div>
       </div>
+    </a>
     </div>
 
     {% if task.description %}
@@ -209,20 +211,20 @@
 
   <!-- Форма создания подзадачи -->
   <div class="subtask-form-container">
-    <h2 class="form-title">Создать подзадачу</h2>
+    <h2 class="form-title">Create subtask</h2>
     
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       
       <div class="form-group">
-        <label for="id_title" class="form-label">Название подзадачи</label>
-        <input type="text" name="title" id="id_title" class="form-control" required>
+        <label for="id_title" class="form-label">Description</label>
+        <textarea type="text" name="title" id="id_title" class="form-control" rows='5' required></textarea>
       </div>
       
-      <div class="form-group">
+      {% comment %} <div class="form-group">
         <label for="id_description" class="form-label">Описание</label>
         <textarea name="description" id="id_description" class="form-control" rows="4"></textarea>
-      </div>
+      </div> {% endcomment %}
       
       <div class="form-group">
         {% comment %} <label for="id_user" class="form-label">Исполнители</label>
@@ -242,19 +244,19 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
           </svg>
-          Прикрепить файл
+          attach file
         </label>
         <div id="file-name" class="file-name"></div>
       </div>
       
-      <button type="submit" class="submit-btn">Создать подзадачу</button>
+      <button type="submit" class="submit-btn">Create subtask</button>
     </form>
     
     <a href="{% url 'groups:group_detail' id=task.group.id slug=task.group.slug %}" class="back-link">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
       </svg>
-      Вернуться к задаче
+      Back to task
     </a>
   </div>
 </div>

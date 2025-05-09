@@ -115,6 +115,28 @@
                                 <h3 class="task-title">
                                     <a href="{% url 'tasks:task_detail' task.id task.group.slug %}">{{ task.title }}</a>
                                 </h3>
+                                <div style="
+                                display: inline-block;
+                                padding: 4px 8px;
+                                border-radius: 12px;
+                                background: {% if task.dead_line %}{% if task.dead_line < now %}linear-gradient(135deg, #ff4d4d, #d92626){% else %}linear-gradient(135deg, #4CAF50, #2E7D32){% endif %}{% else %}#607D8B{% endif %};
+                                color: white;
+                                font-size: 12px;
+                                font-weight: 500;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                margin-left: 8px;
+                            ">
+                                {% if task.dead_line %}
+                                    <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                    {{ task.dead_line|date:"d M Y H:i" }}
+                                    {% if task.dead_line < now %}
+                                        <span style="margin-left: 4px; font-weight: bold;">OVERDUE</span>
+                                    {% endif %}
+                                {% else %}
+                                    <i class="far fa-clock" style="margin-right: 4px;"></i>
+                                    No deadline
+                                {% endif %}
+                            </div>
                                 
                                 <div class="task-status-badge status-{{ task.status }}">
                                     {{ task.get_status_display }}
@@ -535,6 +557,9 @@
     </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% comment %} <button class="open-chat-button" id="open-chat-button">
+    <i class="fas fa-comments"></i>
+</button> {% endcomment %}
 {% endblock %}
 
 {% block extra_css %}
@@ -1013,15 +1038,12 @@
 
     /* Боковая панель с новостями */
     .group-news-sidebar {
-        width: 300px;
-        flex-shrink: 0;
-        margin-right: 20px;
-        background-color: #2d2d2d;
-        border-radius: 10px;
-        padding: 15px;
-        height: fit-content;
-        position: sticky;
-        top: 80px;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+        position: static;
+        max-height: 250px; /* например, 250px */
+        overflow-y: auto;
     }
     /* Форма комментария */
     .comment-form-container {
@@ -2364,6 +2386,271 @@
 .cancel-reply-btn:hover {
     color: #e74c3c;
 }
+/* Кнопка открытия чата */
+.open-chat-button {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Показываем кнопку на маленьких экранах */
+@media (max-width: 768px) {
+    .open-chat-button {
+        display: flex;
+    }
+
+    .group-chat-container {
+        width: 100vw;
+        height: 100vh;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    .chat-collapsed {
+        height: 0;
+    }
+
+    .chat-collapsed .chat-content {
+        display: none;
+    }
+}
+@media (max-width: 768px) {
+    .group-news-sidebar {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+        position: static;
+        max-height: 250px; /* например, 250px */
+        overflow-y: auto;
+    }
+
+    .group-main-content {
+        width: 100%;
+    }
+
+    .group-header-card {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .group-logo-container {
+        width: 100%;
+        text-align: center;
+    }
+
+    .group-logo, .group-logo-placeholder {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+
+    .group-title {
+        font-size: 22px;
+        text-align: center;
+    }
+
+    .group-creator-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .group-meta-info {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .group-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-btn {
+        justify-content: center;
+    }
+
+    .tasks-section {
+        padding: 15px;
+    }
+
+    .task-main-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .task-status-controls {
+        margin-left: 0;
+    }
+
+    .task-creator-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .task-meta {
+        flex-direction: column;
+    }
+
+    .files-list {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .comment-text {
+        padding-left: 0;
+    }
+
+    .comments-container,
+    .subtasks-list {
+        padding-left: 0;
+        border-left: none;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .comment-author {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .chat-header span {
+        font-size: 14px;
+    }
+
+    .create-task-btn {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    .task-title {
+        font-size: 16px;
+    }
+
+    .task-description {
+        font-size: 14px;
+    }
+
+    .subtask-title {
+        font-size: 14px;
+    }
+
+    .file-name {
+        font-size: 13px;
+    }
+
+    .submit-comment-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
+/* Ультра-маленькие экраны (например, iPhone SE) */
+@media (max-width: 480px) {
+    .group-logo, .group-logo-placeholder {
+        width: 120px;
+        height: 120px;
+    }
+
+    .group-title {
+        font-size: 20px;
+    }
+
+    .meta-item {
+        font-size: 14px;
+    }
+
+    .chat-send-btn {
+        padding: 8px 10px;
+    }
+
+    #chat-message-input {
+        font-size: 14px;
+    }
+
+    .reply-content {
+        font-size: 12px;
+    }
+
+    .message-user {
+        font-size: 13px;
+    }
+
+    .message-time {
+        font-size: 11px;
+    }
+
+    .message-text {
+        font-size: 14px;
+    }
+
+    .message-image {
+        max-height: 150px;
+    }
+}
+body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+.group-detail-wrapper {
+    flex-direction: column;
+    padding: 10px;
+}
+#chat-container.chat-collapsed .chat-content {
+    display: none;
+}
+#chat-container.chat-collapsed {
+    height: 50px !important;
+}
+
+/* Кнопка открытия чата */
+.open-chat-button {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    z-index: 9999;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.open-chat-button:hover {
+    background-color: #2980b9;
+}
+
 </style>
 {% endblock %}
 
@@ -2896,4 +3183,28 @@ function formatTime(timestamp) {
     }
 });
 </script>
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatContainer = document.getElementById('chat-container');
+        const openChatButton = document.getElementById('open-chat-button');
+    
+        if (chatContainer && openChatButton) {
+            openChatButton.addEventListener('click', function () {
+                chatContainer.classList.toggle('chat-collapsed');
+    
+                // Если чат открыт — скрыть кнопку
+                if (!chatContainer.classList.contains('chat-collapsed')) {
+                    openChatButton.style.display = 'none';
+                }
+            });
+    
+            // При загрузке страницы — если чат закрыт, показать кнопку
+            if (chatContainer.classList.contains('chat-collapsed')) {
+                openChatButton.style.display = 'flex';
+            } else {
+                openChatButton.style.display = 'none';
+            }
+        }
+    });
+    </script> {% endcomment %}
 {% endblock %}

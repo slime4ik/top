@@ -271,6 +271,12 @@
                             Edit Profile
                         </a>
                     {% endif %}
+                    {% if not is_friend and request.user != profile_user %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="edit-profile-btn">Добавить в друзья</button>
+    </form>
+{% endif %}
                 </div>
             </div>
             
@@ -317,6 +323,7 @@
 </div>
 {% endif %}
             <!-- Social links -->
+            {% if profile_user.privacy == 'O' or is_friend or request.user == profile_user %}
             {% if profile_user.github or profile_user.vk or profile_user.telegram %}
             <div class="info-section">
                 <h3 class="section-title">Social Media</h3>
@@ -327,14 +334,14 @@
                             GitHub
                         </a>
                     {% endif %}
-                    
+        
                     {% if profile_user.vk %}
                         <a href="{{ profile_user.vk }}" target="_blank" class="social-link vk">
                             <i class="fab fa-vk social-icon"></i>
                             VK
                         </a>
                     {% endif %}
-                    
+        
                     {% if profile_user.telegram %}
                         <a href="https://t.me/{{ profile_user.telegram }}" target="_blank" class="social-link telegram">
                             <i class="fab fa-telegram social-icon"></i>
@@ -344,6 +351,8 @@
                 </div>
             </div>
             {% endif %}
+        {% endif %}
+        
         </div>
     </div>
 </div>

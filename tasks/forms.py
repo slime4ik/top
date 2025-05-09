@@ -2,16 +2,25 @@ from django import forms
 from .models import Task, SubTask, Comment
 from django.db.models import Q
 from groups.models import Group
-
 class TaskForm(forms.ModelForm):
     files = forms.FileField(
         required=False,
-        label="Вложение (один файл)"
+        label="File input"
+    )
+
+    dead_line = forms.DateTimeField(
+        widget=forms.DateInput(attrs={
+            'class': 'flatpickr',
+            'data-enable-time': 'true',
+            'data-date-format': 'Y-m-d H:i',  # Формат отображаемой даты и времени
+        }),
+        label="Deadline",
+        required=False,
     )
 
     class Meta:
         model = Task
-        fields = ['title', 'group', 'description']
+        fields = ['title', 'group', 'description', 'dead_line']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -20,6 +29,7 @@ class TaskForm(forms.ModelForm):
             self.fields['group'].queryset = Group.objects.filter(
                 Q(creator=user) | Q(admins=user)
             ).distinct()
+
 
 class SubTaskForm(forms.ModelForm):
     files = forms.FileField(
@@ -44,7 +54,7 @@ class CommentForm(forms.ModelForm):
             'text': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Введите комментарий...',
+                'placeholder': 'enter comment',
                 'style': 'resize: none;',
             }),
             'image': forms.ClearableFileInput(attrs={
@@ -53,5 +63,5 @@ class CommentForm(forms.ModelForm):
         }
         labels = {
             'text': '',
-            'image': 'Картинка (необязательно)',
+            'image': 'image if u want',
         }

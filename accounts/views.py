@@ -1,12 +1,13 @@
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login
 from django.core.cache import cache
 from .forms import EmailForm, CodeForm, NicknameForm, UserUpdateForm
-from .models import User
+from .models import User, Notification, FriendRequest, Friendship
 from django.contrib import messages
-
+from django.db.models import Q
 from config.utils.auth import (
     generate_code, save_code_to_redis, check_code_in_redis,
     send_login_code_task, code_already_exists
@@ -58,6 +59,7 @@ def login_view(request):
                 # Создаём и отправляем код только если его ещё нет
                 if not code_already_exists(email):
                     code = generate_code()
+                    print(code)
                     save_code_to_redis(email, code)
                     send_login_code_task.delay(email, code)
 
@@ -124,7 +126,57 @@ def login_view(request):
         'code_form': code_form,
         'nickname_form': nickname_form,
     })
+@login_required
+def friend_list(request):
+    friends = request.user.get_friends()
+    context = {
+        'friends': friends
+    }
+    return render(request, 'friend_list.html', context)
 
+@require_POST
+@login_required
+def remove_friend(request, friend_id):
+    friend = get_object_or_404(User, id=friend_id)
+    
+    # Remove friendship both ways
+    Friendship.objects.filter(
+        (Q(user1=request.user) & Q(user2=friend)) |
+        (Q(user1=friend) & Q(user2=request.user))
+    ).delete()
+    
+    messages.success(request, f'You have removed {friend.nickname} from your friends')
+    return redirect('accounts:friend_list')
+
+@login_required
+def notification_list_view(request):
+    friend_requests = FriendRequest.objects.select_related('user_from', 'user_to') \
+                                           .filter(user_to=request.user, status='pending')
+
+    notifications = Notification.objects.select_related('user') \
+                                        .filter(user=request.user) \
+                                        .order_by('-id')
+    # Помечаем все уведы прочитаными
+    notifications.filter(read=False).update(read=True)
+    context = {
+        'friend_requests': friend_requests,
+        'notifications': notifications,
+    }
+    return render(request, 'notifications.html', context)
+
+@require_POST
+@login_required
+def accept_friend_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id, user_to=request.user)
+    friend_request.accept()
+    return redirect('accounts:notifications')
+
+@require_POST
+@login_required
+def reject_friend_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id, user_to=request.user)
+    friend_request.reject()
+    return redirect('accounts:notifications')
 
 @login_required
 def profile_detail(request):
@@ -146,11 +198,24 @@ def profile_detail(request):
     }
     return render(request, 'profile_detail.html', context)
 
+
 @login_required
 def profile_check(request, user_id, user_slug):
     profile_user = get_object_or_404(User, id=user_id, slug=user_slug)
 
+    if request.method == 'POST':
+        try:
+            request.user.send_friend_request(profile_user)
+            messages.success(request, 'Заявка в друзья отправлена.')
+        except ValueError as e:
+            messages.error(request, str(e))
+        return redirect('accounts:profile_check', user_id=profile_user.id, user_slug=profile_user.slug)
+
+    is_friend = request.user.is_authenticated and request.user in profile_user.get_friends()
+    
     context = {
-        'profile_user': profile_user
+        'profile_user': profile_user,
+        'is_friend': is_friend,
     }
     return render(request, 'profile_check.html', context)
+

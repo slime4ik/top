@@ -34,18 +34,15 @@ LOGIN_REDIRECT_URL = 'accounts:home'
 LOGIN_URL = 'accounts:login'
 LOGOUT_URL = 'accounts:logout'
 
-# settings.py
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # или свой бэкенд
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Настройки для Mailtrap (тестовый SMTP)
+# Настройки для Mailtrap
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = '5617c3320d5130'
 EMAIL_HOST_PASSWORD = '743cb0d4c1bdf3'
 EMAIL_PORT = '2525'
-
-# И в INSTALLED_APPS можно не включать 'django.contrib.auth.models.Group'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.notification_counts',
             ],
         },
     },
@@ -108,7 +106,7 @@ CHANNEL_LAYERS = {
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
-# Настройки Redis всего 16 баз по дефолту
+# Всего 16 баз по дефолту
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -125,8 +123,8 @@ DATABASES = {
         'NAME': 'slava_db',
         'USER': 'postgres',
         'PASSWORD': 'slava',
-        'HOST': 'localhost',  # Или IP адрес вашего сервера
-        'PORT': '5432',       # Порт по умолчанию для PostgreSQL
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

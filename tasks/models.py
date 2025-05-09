@@ -54,9 +54,9 @@ class Task(TimeStampedModel, ProgressMixin):
     )
     description = models.TextField(max_length=1000, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    dead_line = models.DateTimeField(editable=False, blank=True, null=True)
+    dead_line = models.DateTimeField(editable=True, blank=True, null=True)
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['dead_line']
         indexes = [
             models.Index(fields=['status']),
             models.Index(fields=['group']),

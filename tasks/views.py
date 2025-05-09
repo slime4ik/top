@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseForbidden
 from groups.models import Group  # Импортируй свою модель групп
 from django.urls import reverse
+from django.db.models import Prefetch
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
@@ -164,9 +166,23 @@ def change_subtask_status(request, subtask_id):
 
 @login_required
 def user_tasks(request):
-    user_tasks = Task.objects.filter(user=request.user).order_by('-dead_line')
+    user = request.user
+
+    user_tasks = (
+        Task.objects
+        .filter(user=user)
+        .select_related('creator', 'group')
+        .prefetch_related(
+            'user',
+            'subtasks__user',
+            'subtasks__files',
+            'files',
+            'comments__user',
+        )
+        .order_by('dead_line')
+    )
+
     context = {
         'user_tasks': user_tasks,
-        
     }
     return render(request, 'user_tasks.html', context)

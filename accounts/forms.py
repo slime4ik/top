@@ -32,6 +32,7 @@ class UserUpdateForm(forms.ModelForm):
             'background_image',
             'time_zone',
             'skills',
+            'privacy',
             'github',
             'vk',
             'telegram'
@@ -69,6 +70,12 @@ class UserUpdateForm(forms.ModelForm):
             raise ValidationError(_('Nickname must be at least 3 characters.'))
         if len(nick) > 35:
             raise ValidationError(_('Nickname must be at most 35 characters.'))
+        qs = User.objects.filter(nickname__iexact=nick)
+        if self.instance.pk:  # Если это редактирование, а не создание
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise ValidationError(_('This nickname is already taken.'))
         return nick
     
     def clean_bio(self):
@@ -170,4 +177,6 @@ class NicknameForm(forms.Form):
         nickname = self.cleaned_data.get('nickname')
         if len(nickname) < 3:
             raise forms.ValidationError("Nickname must be at least 3 characters.")
+        if User.objects.filter(nickname__iexact=nickname).exists():
+            raise ValidationError(_('This nickname is already taken.'))
         return nickname

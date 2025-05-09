@@ -92,7 +92,13 @@
                 <div class="error-msg">{{ err }}</div>
             {% endfor %}
         </div>
-
+        <div class="form-group {% if form.privacy.errors %}field-error{% endif %}">
+            <label for="{{ form.privacy.id_for_label }}">Privacy Settings</label>
+            {{ form.privacy }}
+            {% for err in form.privacy.errors %}
+                <div class="error-msg">{{ err }}</div>
+            {% endfor %}
+        </div>        
         <div class="form-group {% if form.bio.errors %}field-error{% endif %}">
             {{ form.bio.label_tag }}
             {{ form.bio }}
@@ -180,7 +186,21 @@
     color: #eee;
     font-family: sans-serif;
 }
-
+select {
+    width: 100%;
+    padding: 10px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95em;
+}
+@media (max-width: 768px) {
+    select {
+        font-size: 0.9em;
+        padding: 8px;
+    }
+}
 /* заголовок */
 .title {
     text-align: center;

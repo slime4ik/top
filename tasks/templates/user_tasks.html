@@ -5,185 +5,132 @@
 {% block content %}
 <style>
     :root {
-        --dark-bg: #1a1a1a;
-        --darker-bg: #121212;
-        --card-bg: #242424;
-        --card-border: #333;
-        --primary-color: #6c5ce7;
-        --primary-hover: #5649c0;
-        --text-color: #e0e0e0;
-        --text-muted: #a0a0a0;
-        --success-bg: #388e3c;
-        --warning-bg: #fbc02d;
-        --warning-text: #000;
+        --dark-bg: #1e1e2e;
+        --darker-bg: #161625;
+        --card-bg: #2a2a3a;
+        --card-border: #3a3a4a;
+        --primary-color: #7c4dff;
+        --primary-hover: #6a3dff;
+        --text-color: #f0f0ff;
+        --text-muted: #a0a0b0;
+        --success-bg: #4caf50;
+        --warning-bg: #ffc107;
+        --error-bg: #f44336;
+        --info-bg: #2196f3;
         --secondary-bg: #616161;
+        --border-radius: 12px;
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
-    .subtask-status-select {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        color: var(--text-color);
-        border-radius: 4px;
-        padding: 3px 8px;
-        font-size: 0.8rem;
-        cursor: pointer;
-    }
-    
-    .subtask-status-select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-    }
+
     body {
         background-color: var(--darker-bg);
         color: var(--text-color);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
+    /* Анимации */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    /* Основные стили */
     .task-card {
         background-color: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 8px;
+        border-radius: var(--border-radius);
         margin-bottom: 20px;
         overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
-        opacity: 0.9;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
+        animation: fadeIn 0.3s ease-out;
     }
 
     .task-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        opacity: 1;
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
     }
 
     .task-header {
         background-color: var(--dark-bg);
-        padding: 15px 20px;
+        padding: 18px 24px;
         border-bottom: 1px solid var(--card-border);
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: var(--transition);
+    }
+
+    .task-header:hover {
+        background-color: #252536;
     }
 
     .task-title {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         font-weight: 600;
         color: var(--text-color);
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .task-meta {
         font-size: 0.85rem;
         color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 8px;
     }
 
     .task-body {
-        padding: 20px;
+        padding: 0;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease-out;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .task-body.expanded {
-        max-height: 2000px; /* Достаточно большое значение для анимации */
+        max-height: 5000px;
     }
 
-    .task-description {
-        margin-bottom: 20px;
-        line-height: 1.6;
+    .task-content {
+        padding: 24px;
     }
 
     .section-title {
         font-size: 1rem;
         font-weight: 600;
-        margin-bottom: 15px;
+        margin-bottom: 16px;
         color: var(--text-color);
         display: flex;
         align-items: center;
+        gap: 8px;
     }
 
-    .toggle-btn {
-        background-color: transparent;
-        border: 1px solid var(--primary-color);
-        color: var(--primary-color);
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        transition: all 0.2s;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
+    .section-title i {
+        font-size: 1.1rem;
     }
 
-    .toggle-btn:hover {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .toggle-btn i {
-        margin-right: 5px;
-    }
-
-    .subtask-item, .comment-item {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 6px;
-        padding: 15px;
-        margin-bottom: 10px;
-    }
-
-    .subtask-title, .comment-author {
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    .comment-author {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .comment-avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        margin-right: 10px;
-        object-fit: cover;
-    }
-
-    .comment-date {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-left: 10px;
-    }
-
-    .comment-text {
-        margin-bottom: 10px;
-        line-height: 1.5;
-    }
-
-    .file-badge {
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        border: 1px solid var(--card-border);
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        margin-right: 5px;
-        margin-bottom: 5px;
-        display: inline-flex;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .file-badge i {
-        margin-right: 5px;
-    }
-
+    /* Элементы статуса */
     .status-badge {
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        margin-left: 8px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .status-waiting {
@@ -193,7 +140,7 @@
 
     .status-in-progress {
         background-color: var(--warning-bg);
-        color: var(--warning-text);
+        color: #1a1a1a;
     }
 
     .status-done {
@@ -201,62 +148,333 @@
         color: white;
     }
 
+    .status-overdue {
+        background-color: var(--error-bg);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    /* Информация о создателе */
     .creator-info {
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--card-border);
     }
 
     .creator-avatar {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        margin-right: 10px;
+        margin-right: 12px;
         object-fit: cover;
+        border: 2px solid var(--primary-color);
     }
 
     .creator-details {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
     .creator-name {
-        font-weight: 500;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .creator-name a {
+        color: inherit;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .creator-name a:hover {
+        color: var(--primary-color);
     }
 
     .creator-date {
         color: var(--text-muted);
         font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
-    .task-actions {
+    /* Описание задачи */
+    .task-description {
+        margin-bottom: 24px;
+        line-height: 1.7;
+        color: var(--text-color);
+    }
+
+    /* Файлы */
+    .task-files {
+        margin-bottom: 24px;
+    }
+
+    .file-badge {
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        border: 1px solid var(--card-border);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .file-badge:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Подзадачи */
+    .subtasks-section {
+        margin-bottom: 24px;
+    }
+
+    .subtask-item {
+        background-color: var(--dark-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: var(--transition);
+    }
+
+    .subtask-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .subtask-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 20px;
-        padding-top: 15px;
-        border-top: 1px solid var(--card-border);
+        margin-bottom: 12px;
     }
 
+    .subtask-title {
+        font-weight: 500;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .subtask-status-select {
+        background-color: var(--dark-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-color);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        min-width: 120px;
+    }
+
+    .subtask-status-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+    }
+
+    .subtask-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* Комментарии */
+    .comments-section {
+        margin-bottom: 24px;
+    }
+
+    .comment-item {
+        background-color: var(--dark-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: var(--transition);
+    }
+
+    .comment-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .comment-author {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 12px;
+        object-fit: cover;
+        border: 1px solid var(--primary-color);
+    }
+
+    .comment-author-info {
+        flex: 1;
+    }
+
+    .comment-author-name {
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .comment-author-name a {
+        color: inherit;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .comment-author-name a:hover {
+        color: var(--primary-color);
+    }
+
+    .comment-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .comment-text {
+        margin-bottom: 12px;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+
+    /* Изображения в комментариях */
+    .comment-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .image-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 6px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid var(--card-border);
+    }
+
+    .image-preview:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Форма комментария */
+    .comment-form {
+        margin-top: 20px;
+    }
+
+    .comment-textarea {
+        background-color: var(--dark-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-color);
+        border-radius: 8px;
+        padding: 12px;
+        width: 100%;
+        min-height: 100px;
+        resize: vertical;
+        transition: var(--transition);
+        margin-bottom: 12px;
+    }
+
+    .comment-textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+    }
+
+    /* Кнопки */
+    .btn {
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(124, 77, 255, 0.1);
+    }
+
+    .btn-danger {
+        background-color: var(--error-bg);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #e53935;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Участники задачи */
     .task-users {
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 8px;
     }
 
     .user-badge {
         background-color: var(--dark-bg);
         border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 3px 8px;
-        font-size: 0.8rem;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
         display: flex;
         align-items: center;
-        transition: all 0.2s;
+        gap: 6px;
+        transition: var(--transition);
     }
 
     .user-badge:hover {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
     }
 
     .user-badge a {
@@ -264,112 +482,127 @@
         text-decoration: none;
         display: flex;
         align-items: center;
+        gap: 6px;
     }
 
-    .user-badge img {
-        width: 18px;
-        height: 18px;
+    .user-avatar {
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        margin-right: 5px;
+        object-fit: cover;
     }
 
-    .form-control, .form-select {
+    /* Действия с задачей */
+    .task-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .task-status-select {
         background-color: var(--dark-bg);
         border: 1px solid var(--card-border);
         color: var(--text-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        min-width: 140px;
     }
 
-    .form-control:focus, .form-select:focus {
-        background-color: var(--dark-bg);
+    .task-status-select:focus {
+        outline: none;
         border-color: var(--primary-color);
-        color: var(--text-color);
-        box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
     }
 
-    .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    .btn-primary:hover {
-        background-color: var(--primary-hover);
-        border-color: var(--primary-hover);
-    }
-
-    .btn-outline-danger {
-        color: #ff6b6b;
-        border-color: #ff6b6b;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #ff6b6b;
-        color: white;
-    }
-
+    /* Пустое состояние */
     .empty-state {
         text-align: center;
-        padding: 40px 20px;
+        padding: 60px 20px;
         color: var(--text-muted);
     }
 
     .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 15px;
+        font-size: 3.5rem;
+        margin-bottom: 20px;
         color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    .empty-state h3 {
+        font-weight: 500;
+        margin-bottom: 10px;
     }
 
     /* Пагинация */
     .pagination {
         display: flex;
         justify-content: center;
-        margin-top: 30px;
+        margin-top: 40px;
+        gap: 8px;
     }
 
     .page-item {
-        margin: 0 5px;
+        list-style: none;
     }
 
     .page-link {
         background-color: var(--dark-bg);
         border: 1px solid var(--card-border);
         color: var(--text-color);
-        padding: 5px 12px;
-        border-radius: 4px;
-        transition: all 0.2s;
+        padding: 8px 14px;
+        border-radius: 8px;
+        transition: var(--transition);
+        text-decoration: none;
+        display: block;
+        min-width: 40px;
+        text-align: center;
     }
 
     .page-link:hover {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
         color: white;
+        transform: translateY(-2px);
     }
 
     .page-item.active .page-link {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
     }
 
     .page-item.disabled .page-link {
         color: var(--text-muted);
         background-color: var(--dark-bg);
         border-color: var(--card-border);
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
     }
 
-    /* Модальное окно для изображений */
+    /* Модальное окно */
     .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.8);
+        background-color: rgba(0, 0, 0, 0.9);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s;
+        transition: all 0.3s ease-out;
+        backdrop-filter: blur(5px);
     }
 
     .modal-overlay.active {
@@ -380,12 +613,14 @@
     .modal-content {
         max-width: 90%;
         max-height: 90%;
+        position: relative;
     }
 
-    .modal-content img {
+    .modal-image {
         max-width: 100%;
         max-height: 90vh;
-        border-radius: 8px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     .close-modal {
@@ -393,34 +628,85 @@
         top: 20px;
         right: 20px;
         color: white;
-        font-size: 2rem;
+        font-size: 2.5rem;
         cursor: pointer;
-    }
-
-    /* Превью изображений в комментариях */
-    .comment-images {
+        transition: var(--transition);
+        background: rgba(0, 0, 0, 0.5);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 10px;
+        align-items: center;
+        justify-content: center;
+        border: none;
     }
 
-    .image-preview {
-        width: 100px;
-        height: 100px;
-        border-radius: 4px;
-        object-fit: cover;
-        cursor: pointer;
-        transition: transform 0.2s;
+    .close-modal:hover {
+        transform: rotate(90deg);
+        background: rgba(255, 255, 255, 0.2);
     }
 
-    .image-preview:hover {
-        transform: scale(1.05);
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .task-header {
+            padding: 14px 16px;
+        }
+        
+        .task-content {
+            padding: 16px;
+        }
+        
+        .task-title {
+            font-size: 1.1rem;
+        }
+        
+        .creator-avatar {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .task-actions {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .task-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .task-meta {
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-start;
+        }
+        
+        .subtask-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .subtask-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
     }
 </style>
 
 <div class="container py-4">
-    <h1 class="mb-4">Мои задачи</h1>
+    <h1 class="mb-4" style="font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-tasks"></i>
+        Мои задачи
+    </h1>
 
     {% if user_tasks %}
         <div class="tasks-container">
@@ -429,125 +715,174 @@
                     <div class="task-header" onclick="toggleTaskDetails('task-{{ task.id }}', this)">
                         <div>
                             <h3 class="task-title">
+                                <i class="fas fa-tasks" style="color: var(--primary-color);"></i>
                                 {{ task.title }}
-                                <span class="status-badge status-{{ task.status }}">
-                                    {{ task.get_status_display }}
+                                <span class="status-badge status-{{ task.status }}{% if task.dead_line and task.dead_line < now %} status-overdue{% endif %}">
+                                    {% if task.dead_line and task.dead_line < now %}
+                                        Просрочено
+                                    {% else %}
+                                        {{ task.get_status_display }}
+                                    {% endif %}
                                 </span>
                             </h3>
                             <div class="task-meta">
-                                Группа: <a href="{% url 'groups:group_detail' id=task.group.id slug=task.group.slug %}" class="text-primary">{{ task.group.name }}</a>
-                                | Срок: {{ task.dead_line|date:"d.m.Y"|default:"Нет срока" }}
+                                {% if task.dead_line %}
+                                    <span>
+                                        <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                        {{ task.dead_line|date:"d M Y H:i" }}
+                                    </span>
+                                {% else %}
+                                    <span>
+                                        <i class="far fa-clock" style="margin-right: 4px;"></i>
+                                        Нет срока
+                                    </span>
+                                {% endif %}
+                                <span>
+                                    <i class="fas fa-users" style="margin-right: 4px;"></i>
+                                    {{ task.user.count }} участник{{ task.user.count|pluralize:"ов" }}
+                                </span>
+                                <span>
+                                    <i class="fas fa-check-circle" style="margin-right: 4px;"></i>
+                                    {{ task.completed_subtasks }} из {{ task.subtasks.count }} выполнено
+                                </span>
                             </div>
                         </div>
                         <i class="fas fa-chevron-down"></i>
                     </div>
 
                     <div id="task-{{ task.id }}" class="task-body">
-                        <div class="creator-info">
-                            {% if task.creator.avatar %}
-                                {% thumbnail task.creator.avatar "40x40" crop="center" as im %}
-                                    <img src="{{ im.url }}" class="creator-avatar" alt="{{ task.creator.nickname }}">
-                                {% endthumbnail %}
-                            {% else %}
-                                <img src="{% static 'images/default-avatar.png' %}" class="creator-avatar" alt="Default avatar">
-                            {% endif %}
-                            <div class="creator-details">
-                                <div class="creator-name">
-                                    <a href="{% url 'accounts:profile_check' task.creator.id task.creator.slug %}" style="color: inherit; text-decoration: none;">
-                                        {{ task.creator.nickname }}
-                                    </a>
-                                </div>
-                                <div class="creator-date">Создано: {{ task.created_at|date:"d.m.Y H:i" }}</div>
-                            </div>
-                        </div>
-
-                        <div class="task-description">
-                            <h6 class="section-title">Описание</h6>
-                            <p>{{ task.description|default:"Нет описания" }}</p>
-                        </div>
-
-                        {% if task.files.all %}
-                            <div class="task-files mb-4">
-                                <h6 class="section-title">Файлы</h6>
-                                <div>
-                                    {% for file in task.files.all %}
-                                        <a href="{{ file.file.url }}" target="_blank" class="file-badge">
-                                            <i class="fas fa-file"></i> {{ file.file.name|truncatechars:20 }}
+                        <div class="task-content">
+                            <div class="creator-info">
+                                {% if task.creator.avatar %}
+                                    {% thumbnail task.creator.avatar "48x48" crop="center" as im %}
+                                        <img src="{{ im.url }}" class="creator-avatar" alt="{{ task.creator.nickname }}">
+                                    {% endthumbnail %}
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" class="creator-avatar" alt="Default avatar">
+                                {% endif %}
+                                <div class="creator-details">
+                                    <div class="creator-name">
+                                        <a href="{% url 'accounts:profile_check' task.creator.id task.creator.slug %}">
+                                            {{ task.creator.nickname }}
                                         </a>
-                                    {% endfor %}
+                                    </div>
+                                    <div class="creator-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        Создано: {{ task.created_at|date:"d.m.Y H:i" }}
+                                    </div>
                                 </div>
                             </div>
-                        {% endif %}
 
-                        <div class="subtasks-section mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="section-title">Подзадачи ({{ task.subtasks.count }})</h6>
-                                <button class="toggle-btn" onclick="toggleSection('subtasks-{{ task.id }}', this)">
-                                    <i class="fas fa-tasks"></i> Показать
-                                </button>
+                            <div class="task-description">
+                                <h6 class="section-title">
+                                    <i class="fas fa-align-left"></i>
+                                    Описание
+                                </h6>
+                                <p>{{ task.description|default:"Нет описания"|linebreaks }}</p>
                             </div>
-                            <div id="subtasks-{{ task.id }}" style="display: none;">
+
+                            {% if task.files.all %}
+                                <div class="task-files">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-paperclip"></i>
+                                        Файлы ({{ task.files.count }})
+                                    </h6>
+                                    <div>
+                                        {% for file in task.files.all %}
+                                            <a href="{{ file.file.url }}" target="_blank" class="file-badge">
+                                                <i class="fas fa-file"></i>
+                                                {{ file.get_filename|truncatechars:20 }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="subtasks-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-tasks"></i>
+                                    Подзадачи ({{ task.subtasks.count }})
+                                </h6>
+                                
                                 {% if task.subtasks.all %}
-                                    {% for subtask in task.subtasks.all %}
-                                    <div class="subtask-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="subtask-title">
-                                                    {{ subtask.title }}
-                                                    <form method="post" action="{% url 'tasks:change_subtask_status' subtask_id=subtask.id %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <select name="status" class="subtask-status-select" onchange="this.form.submit()">
-                                                            {% for value, display in subtask.STATUS_CHOICES %}
-                                                                <option value="{{ value }}" {% if subtask.status == value %}selected{% endif %}>{{ display }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </form>
+                                    <div class="subtasks-list" style="margin-top: 16px;">
+                                        {% for subtask in task.subtasks.all %}
+                                            <div class="subtask-item">
+                                                <div class="subtask-header">
+                                                    <div class="subtask-title">
+                                                        {% if subtask.status == 'done' %}
+                                                            <i class="fas fa-check-circle" style="color: var(--success-bg);"></i>
+                                                        {% elif subtask.status == 'in_progress' %}
+                                                            <i class="fas fa-spinner fa-pulse" style="color: var(--warning-bg);"></i>
+                                                        {% else %}
+                                                            <i class="far fa-circle" style="color: var(--secondary-bg);"></i>
+                                                        {% endif %}
+                                                        {{ subtask.title }}
+                                                    </div>
+                                                    {% if request.user in subtask.user.all %}
+                                                        <div class="subtask-actions">
+                                                            <form method="post" action="{% url 'tasks:change_subtask_status' subtask_id=subtask.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <select name="status" class="subtask-status-select" onchange="this.form.submit()">
+                                                                    {% for value, display in subtask.STATUS_CHOICES %}
+                                                                        <option value="{{ value }}" {% if subtask.status == value %}selected{% endif %}>{{ display }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </form>
+                                                            <form method="post" action="{% url 'tasks:leave_subtask' subtask_id=subtask.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-outline">
+                                                                    <i class="fas fa-sign-out-alt"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    {% else %}
+                                                        <form method="post" action="{% url 'tasks:join_subtask' subtask_id=subtask.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-primary">
+                                                                <i class="fas fa-user-plus"></i>
+                                                                Взять
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
                                                 </div>
+                                                
                                                 {% if subtask.description %}
-                                                    <p class="mb-2">{{ subtask.description }}</p>
+                                                    <p class="mb-3">{{ subtask.description|linebreaks }}</p>
                                                 {% endif %}
+                                                
                                                 {% if subtask.files.all %}
-                                                    <div class="mt-2">
+                                                    <div class="mb-3">
                                                         {% for file in subtask.files.all %}
                                                             <a href="{{ file.file.url }}" target="_blank" class="file-badge">
-                                                                <i class="fas fa-file"></i> {{ file.file.name|truncatechars:15 }}
+                                                                <i class="fas fa-file"></i>
+                                                                {{ file.get_filename|truncatechars:15 }}
                                                             </a>
                                                         {% endfor %}
                                                     </div>
                                                 {% endif %}
-                                            </div>
-                                            <div class="subtask-actions">
-                                                {% if request.user in subtask.user.all %}
-                                                    <form method="post" action="{% url 'tasks:leave_subtask' subtask_id=subtask.id %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Покинуть</button>
-                                                    </form>
-                                                {% else %}
-                                                    <form method="post" action="{% url 'tasks:join_subtask' subtask_id=subtask.id %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-primary">Взять</button>
-                                                    </form>
+                                                
+                                                {% if subtask.user.all %}
+                                                    <div class="task-users">
+                                                        {% for user in subtask.user.all %}
+                                                            <div class="user-badge">
+                                                                <a href="{% url 'accounts:profile_check' user.id user.slug %}">
+                                                                    {% if user.avatar %}
+                                                                        {% thumbnail user.avatar "20x20" crop="center" as im %}
+                                                                            <img src="{{ im.url }}" class="user-avatar" alt="{{ user.nickname }}">
+                                                                        {% endthumbnail %}
+                                                                    {% else %}
+                                                                        <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default avatar">
+                                                                    {% endif %}
+                                                                    {{ user.nickname }}
+                                                                </a>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
                                                 {% endif %}
                                             </div>
-                                        </div>
-                                        <div class="task-users mt-2">
-                                            {% for user in subtask.user.all %}
-                                                <div class="user-badge">
-                                                    <a href="{% url 'accounts:profile_check' user.id user.slug %}">
-                                                        {% if user.avatar %}
-                                                            {% thumbnail user.avatar "18x18" crop="center" as im %}
-                                                                <img src="{{ im.url }}" alt="{{ user.nickname }}">
-                                                            {% endthumbnail %}
-                                                        {% else %}
-                                                            <img src="{% static 'images/default-avatar.png' %}" alt="Default avatar">
-                                                        {% endif %}
-                                                        {{ user.nickname }}
-                                                    </a>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
+                                        {% endfor %}
                                     </div>
-                                    {% endfor %}
                                 {% else %}
                                     <div class="empty-state py-3">
                                         <i class="fas fa-tasks"></i>
@@ -555,97 +890,111 @@
                                     </div>
                                 {% endif %}
                             </div>
-                        </div>
 
-                        <div class="comments-section mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="section-title">Комментарии ({{ task.comments.count }})</h6>
-                                <button class="toggle-btn" onclick="toggleSection('comments-{{ task.id }}', this)">
-                                    <i class="fas fa-comments"></i> Показать
-                                </button>
-                            </div>
-                            <div id="comments-{{ task.id }}" style="display: none;">
+                            <div class="comments-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-comments"></i>
+                                    Комментарии ({{ task.comments.count }})
+                                </h6>
+                                
                                 {% if task.comments.all %}
-                                    {% for comment in task.comments.all %}
-                                        <div class="comment-item">
-                                            <div class="comment-author">
-                                                {% if comment.user.avatar %}
-                                                    {% thumbnail comment.user.avatar "28x28" crop="center" as im %}
-                                                        <img src="{{ im.url }}" class="comment-avatar" alt="{{ comment.user.nickname }}">
-                                                    {% endthumbnail %}
-                                                {% else %}
-                                                    <img src="{% static 'images/default-avatar.png' %}" class="comment-avatar" alt="Default avatar">
-                                                {% endif %}
-                                                <a href="{% url 'accounts:profile_check' comment.user.id comment.user.slug %}" style="color: inherit; text-decoration: none;">
-                                                    {{ comment.user.nickname }}
-                                                </a>
-                                                <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
-                                            </div>
-                                            <div class="comment-text">
-                                                {{ comment.text }}
-                                            </div>
-                                            {% if comment.image %}
-                                                <div class="comment-images">
-                                                    <img src="{{ comment.image.url }}" class="image-preview" 
-                                                         onclick="openModal('{{ comment.image.url }}')">
+                                    <div class="comments-list" style="margin-top: 16px;">
+                                        {% for comment in task.comments.all %}
+                                            <div class="comment-item">
+                                                <div class="comment-author">
+                                                    {% if comment.user.avatar %}
+                                                        {% thumbnail comment.user.avatar "32x32" crop="center" as im %}
+                                                            <img src="{{ im.url }}" class="comment-avatar" alt="{{ comment.user.nickname }}">
+                                                        {% endthumbnail %}
+                                                    {% else %}
+                                                        <img src="{% static 'images/default-avatar.png' %}" class="comment-avatar" alt="Default avatar">
+                                                    {% endif %}
+                                                    <div class="comment-author-info">
+                                                        <div class="comment-author-name">
+                                                            <a href="{% url 'accounts:profile_check' comment.user.id comment.user.slug %}">
+                                                                {{ comment.user.nickname }}
+                                                            </a>
+                                                        </div>
+                                                        <div class="comment-date">
+                                                            <i class="far fa-clock"></i>
+                                                            {{ comment.created_at|date:"d.m.Y H:i" }}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                                <div class="comment-text">
+                                                    {{ comment.text|linebreaks }}
+                                                </div>
+                                                {% if comment.image %}
+                                                    <div class="comment-images">
+                                                        <img src="{{ comment.image.url }}" class="image-preview" 
+                                                             onclick="openModal('{{ comment.image.url }}')">
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 {% else %}
                                     <div class="empty-state py-3">
                                         <i class="fas fa-comment-slash"></i>
                                         <p>Нет комментариев</p>
                                     </div>
                                 {% endif %}
+                                
                                 <div class="comment-form mt-4">
                                     <form method="post" action="{% url 'tasks:add_comment' task_id=task.id %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <div class="form-group mb-2">
-                                            <textarea name="text" class="form-control" rows="3" placeholder="Добавить комментарий..." required></textarea>
+                                        <textarea name="text" class="comment-textarea" placeholder="Напишите комментарий..." required></textarea>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <label for="comment-image-{{ task.id }}" class="btn btn-outline" style="cursor: pointer;">
+                                                    <i class="fas fa-image"></i>
+                                                    Прикрепить изображение
+                                                </label>
+                                                <input type="file" name="image" id="comment-image-{{ task.id }}" style="display: none;" accept="image/*">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-paper-plane"></i>
+                                                Отправить
+                                            </button>
                                         </div>
-                                        <div class="form-group mb-3">
-                                            <label for="comment-image-{{ task.id }}" class="file-badge" style="cursor: pointer;">
-                                                <i class="fas fa-image"></i> Прикрепить изображение
-                                            </label>
-                                            <input type="file" name="image" id="comment-image-{{ task.id }}" style="display: none;" accept="image/*">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Отправить</button>
                                     </form>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="task-actions">
-                            <div class="task-users">
-                                {% for user in task.user.all %}
-                                    <div class="user-badge">
-                                        <a href="{% url 'accounts:profile_check' user.id user.slug %}">
-                                            {% if user.avatar %}
-                                                {% thumbnail user.avatar "18x18" crop="center" as im %}
-                                                    <img src="{{ im.url }}" alt="{{ user.nickname }}">
-                                                {% endthumbnail %}
-                                            {% else %}
-                                                <img src="{% static 'images/default-avatar.png' %}" alt="Default avatar">
-                                            {% endif %}
-                                            {{ user.nickname }}
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <form method="post" action="{% url 'tasks:change_task_status' task_id=task.id %}" class="me-2">
-                                    {% csrf_token %}
-                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                        {% for value, display in task.STATUS_CHOICES %}
-                                            <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ display }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </form>
-                                <form method="post" action="{% url 'tasks:leave_task' task_id=task.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Покинуть задачу</button>
-                                </form>
+                            <div class="task-actions">
+                                <div class="task-users">
+                                    {% for user in task.user.all %}
+                                        <div class="user-badge">
+                                            <a href="{% url 'accounts:profile_check' user.id user.slug %}">
+                                                {% if user.avatar %}
+                                                    {% thumbnail user.avatar "20x20" crop="center" as im %}
+                                                        <img src="{{ im.url }}" class="user-avatar" alt="{{ user.nickname }}">
+                                                    {% endthumbnail %}
+                                                {% else %}
+                                                    <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default avatar">
+                                                {% endif %}
+                                                {{ user.nickname }}
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <form method="post" action="{% url 'tasks:change_task_status' task_id=task.id %}">
+                                        {% csrf_token %}
+                                        <select name="status" class="task-status-select" onchange="this.form.submit()">
+                                            {% for value, display in task.STATUS_CHOICES %}
+                                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ display }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                    <form method="post" action="{% url 'tasks:leave_task' task_id=task.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            Покинуть
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -660,20 +1009,24 @@
                     {% if user_tasks.has_previous %}
                         <li class="page-item">
                             <a class="page-link" href="?page=1" aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
                         <li class="page-item">
                             <a class="page-link" href="?page={{ user_tasks.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
+                                <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
-                            <span class="page-link">&laquo;&laquo;</span>
+                            <span class="page-link">
+                                <i class="fas fa-angle-double-left"></i>
+                            </span>
                         </li>
                         <li class="page-item disabled">
-                            <span class="page-link">&laquo;</span>
+                            <span class="page-link">
+                                <i class="fas fa-angle-left"></i>
+                            </span>
                         </li>
                     {% endif %}
 
@@ -692,20 +1045,24 @@
                     {% if user_tasks.has_next %}
                         <li class="page-item">
                             <a class="page-link" href="?page={{ user_tasks.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
+                                <i class="fas fa-angle-right"></i>
                             </a>
                         </li>
                         <li class="page-item">
                             <a class="page-link" href="?page={{ user_tasks.paginator.num_pages }}" aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
-                            <span class="page-link">&raquo;</span>
+                            <span class="page-link">
+                                <i class="fas fa-angle-right"></i>
+                            </span>
                         </li>
                         <li class="page-item disabled">
-                            <span class="page-link">&raquo;&raquo;</span>
+                            <span class="page-link">
+                                <i class="fas fa-angle-double-right"></i>
+                            </span>
                         </li>
                     {% endif %}
                 </ul>
@@ -716,19 +1073,24 @@
             <i class="fas fa-tasks"></i>
             <h3>Нет активных задач</h3>
             <p>Вы можете присоединиться к задачам в ваших группах</p>
+            <a href="{% url 'groups:groups' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-users"></i>
+                Мои группы
+            </a>
         </div>
     {% endif %}
 
     <!-- Модальное окно для изображений -->
     <div class="modal-overlay" id="image-modal">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
         <div class="modal-content">
-            <img id="modal-image" src="" alt="Увеличенное изображение">
+            <img id="modal-image" class="modal-image" src="" alt="Увеличенное изображение">
         </div>
     </div>
 </div>
 
 <script>
+    // Анимация открытия/закрытия деталей задачи
     function toggleTaskDetails(taskId, headerElement) {
         const taskElement = document.getElementById(taskId);
         const chevron = headerElement.querySelector('.fa-chevron-down, .fa-chevron-up');
@@ -736,39 +1098,9 @@
         taskElement.classList.toggle('expanded');
         
         if (taskElement.classList.contains('expanded')) {
-            chevron.classList.remove('fa-chevron-down');
-            chevron.classList.add('fa-chevron-up');
+            chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
         } else {
-            chevron.classList.remove('fa-chevron-up');
-            chevron.classList.add('fa-chevron-down');
-        }
-    }
-
-    function toggleSection(sectionId, button) {
-        const section = document.getElementById(sectionId);
-        const icon = button.querySelector('i');
-        
-        if (section.style.display === 'none') {
-            section.style.display = 'block';
-            button.innerHTML = button.innerHTML.replace('Показать', 'Скрыть');
-            if (icon.classList.contains('fa-tasks')) {
-                icon.classList.remove('fa-tasks');
-                icon.classList.add('fa-eye-slash');
-            } else if (icon.classList.contains('fa-comments')) {
-                icon.classList.remove('fa-comments');
-                icon.classList.add('fa-eye-slash');
-            }
-        } else {
-            section.style.display = 'none';
-            button.innerHTML = button.innerHTML.replace('Скрыть', 'Показать');
-            if (icon.classList.contains('fa-eye-slash')) {
-                icon.classList.remove('fa-eye-slash');
-                if (sectionId.includes('subtasks')) {
-                    icon.classList.add('fa-tasks');
-                } else {
-                    icon.classList.add('fa-comments');
-                }
-            }
+            chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
         }
     }
 
@@ -797,11 +1129,188 @@
     // Открываем первую задачу автоматически
     document.addEventListener('DOMContentLoaded', function() {
         const firstTask = document.querySelector('.task-card');
-        if (firstTask) {
+        if(firstTask) {
             const firstTaskId = firstTask.querySelector('.task-body').id;
             const firstTaskHeader = firstTask.querySelector('.task-header');
             toggleTaskDetails(firstTaskId, firstTaskHeader);
+            }
+    // Добавляем интерактивность для статусов подзадач
+    const statusSelects = document.querySelectorAll('.subtask-status-select');
+    statusSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Добавляем визуальную обратную связь
+            const card = this.closest('.subtask-item');
+            card.style.boxShadow = '0 0 0 2px rgba(124, 77, 255, 0.5)';
+            setTimeout(() => {
+                card.style.boxShadow = '';
+            }, 500);
+            
+            // Показываем лоадер
+            const form = this.closest('form');
+            const submitButton = form.querySelector('[type="submit"]');
+            if (submitButton) {
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
+                setTimeout(() => {
+                    form.submit();
+                }, 300);
+            }
+        });
+    });
+
+    // Анимация при наведении на элементы
+    const interactiveElements = document.querySelectorAll('.task-card, .subtask-item, .comment-item, .file-badge, .user-badge');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            el.style.transform = 'translateY(-3px)';
+        });
+        el.addEventListener('mouseleave', () => {
+            el.style.transform = '';
+        });
+    });
+
+    // Плавная прокрутка к задачам
+    const taskLinks = document.querySelectorAll('a[href^="#task-"]');
+    taskLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                // Открываем задачу если она закрыта
+                const header = targetElement.previousElementSibling;
+                if (!targetElement.classList.contains('expanded')) {
+                    toggleTaskDetails(targetId.slice(1), header);
+                }
+                
+                // Плавная прокрутка
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                // Подсветка на 2 секунды
+                targetElement.style.boxShadow = '0 0 0 3px rgba(124, 77, 255, 0.5)';
+                setTimeout(() => {
+                    targetElement.style.boxShadow = '';
+                }, 2000);
+            }
+        });
+    });
+
+    // Динамическая загрузка изображений при прокрутке
+    const lazyImages = document.querySelectorAll('.image-preview');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src || img.src;
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            }
+        });
+    }, { rootMargin: '100px' });
+
+    lazyImages.forEach(img => {
+        if (!img.classList.contains('loaded')) {
+            imageObserver.observe(img);
         }
     });
-</script>
+
+    // Обработка формы комментария
+    const commentForms = document.querySelectorAll('.comment-form form');
+    commentForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const textarea = this.querySelector('textarea');
+            if (textarea.value.trim() === '') {
+                e.preventDefault();
+                textarea.style.borderColor = 'var(--error-bg)';
+                setTimeout(() => {
+                    textarea.style.borderColor = '';
+                }, 2000);
+                return false;
+            }
+            
+            // Показываем лоадер
+            const submitButton = this.querySelector('[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            }
+        });
+    });
+
+    // Drag and drop для файлов
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        const label = input.previousElementSibling;
+        if (label && label.tagName === 'LABEL') {
+            label.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                label.style.backgroundColor = 'rgba(124, 77, 255, 0.1)';
+                label.style.borderColor = 'var(--primary-color)';
+            });
+            
+            label.addEventListener('dragleave', () => {
+                label.style.backgroundColor = '';
+                label.style.borderColor = '';
+            });
+            
+            label.addEventListener('drop', (e) => {
+                e.preventDefault();
+                label.style.backgroundColor = '';
+                label.style.borderColor = '';
+                input.files = e.dataTransfer.files;
+                
+                // Показываем количество выбранных файлов
+                if (input.files.length > 0) {
+                    label.innerHTML = `<i class="fas fa-check-circle"></i> Выбрано ${input.files.length} файл${input.files.length > 1 ? 'ов' : ''}`;
+                }
+            });
+        }
+    });
+});
+
+// Анимация при обновлении статуса задачи
+function animateStatusChange(element, newStatus) {
+    const card = element.closest('.task-card');
+    const statusBadge = card.querySelector('.status-badge');
+    
+    // Временные классы для анимации
+    statusBadge.classList.add('status-changing');
+    statusBadge.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        statusBadge.className = 'status-badge';
+        statusBadge.classList.add(`status-${newStatus}`);
+        statusBadge.style.opacity = '1';
+        
+        // Текст статуса в зависимости от выбранного значения
+        const statusText = {
+            'waiting': 'Ожидает',
+            'in_progress': 'В работе',
+            'done': 'Выполнено'
+        }[newStatus];
+        
+        statusBadge.textContent = statusText;
+        
+        // Добавляем иконку в зависимости от статуса
+        const iconMap = {
+            'waiting': 'far fa-clock',
+            'in_progress': 'fas fa-spinner fa-pulse',
+            'done': 'fas fa-check-circle'
+        };
+        
+        const icon = document.createElement('i');
+        icon.className = iconMap[newStatus];
+        statusBadge.prepend(icon);
+        
+        // Анимация подтверждения
+        card.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.5)';
+        setTimeout(() => {
+            card.style.boxShadow = '';
+        }, 1000);
+    }, 300);
+}</script>
+
 {% endblock %}

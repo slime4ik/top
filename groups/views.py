@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import ChatMessage
 from .serializers import ChatMessageSerializer
+from django.utils import timezone
 
 @login_required
 def groups_view(request):
@@ -107,32 +108,62 @@ def my_groups(request):
                   'my_groups.html',
                   context)
 
+
 @login_required
 def group_detail(request, id, slug):
-    group = get_object_or_404(Group, id=id, slug=slug)
+    group = (
+        Group.objects
+        .prefetch_related('members', 'admins')  # избежим N+1 на проверку доступа
+        .select_related('creator')              # избежим лишнего запроса к создателю
+        .get(id=id, slug=slug)
+    )
+
     ru = request.user
-    if ru not in group.members.all() and ru not in group.admins.all() and ru != group.creator and group.status == 'C':
+    is_member = ru in group.members.all()
+    is_admin = ru in group.admins.all()
+
+    if not (is_member or is_admin or ru == group.creator) and group.status == 'C':
         return HttpResponseForbidden("U cant interact with this group")
-    elif ru not in group.members.all() and ru not in group.admins.all() and ru != group.creator:
+    elif not (is_member or is_admin or ru == group.creator):
         return render(request, 'group_preview.html', {'group': group})
-    # Получаем все задачи группы
-    tasks_list = group.tasks.all()  # Или применяй фильтрацию по задачам, если нужно
+
+    # Оптимизируем подгрузку задач
+    tasks_list = (
+        group.tasks
+        .select_related('creator', 'group')
+        .prefetch_related(
+            'user',                # M2M пользователей
+            'files',              # файлы задачи
+            'subtasks__user',     # пользователи подзадач
+            'subtasks__files',    # файлы подзадач
+            'comments__user',     # комментарии + авторы
+        )
+        .all()
+    )
+
     paginator = Paginator(tasks_list, 7)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Получаем последние 7 действий для уведомлений
-    actions = Action.objects.filter(group=group)[:7]
+    # Последние действия (оптимизация зависит от Action модели)
+    actions = (
+        Action.objects
+        .filter(group=group)
+        .select_related('user', 'group')  # если есть ForeignKey к user
+        [:7]
+    )
+
     comment_form = CommentForm()
+
     context = {
+        'now': timezone.now(),
         'comment_form': comment_form,
         'group': group,
         'actions': actions,
-        'page_obj': page_obj,  # Передаем объект страницы в контекст
+        'page_obj': page_obj,
     }
-    
-    return render(request, 'detail.html', context)
 
+    return render(request, 'detail.html', context)
 @login_required
 def users_list(request, id, slug):
     group = get_object_or_404(Group, id=id, slug=slug)
@@ -259,7 +290,7 @@ def kick_user(request, group_id, user_id):
     return redirect(reverse('groups:users_list', kwargs={'id': group.id, 'slug': group.slug}))
 
 @login_required
-def join_group(request, group_id, group_slug):
+def open_join_group(request, group_id, group_slug):
     group = get_object_or_404(Group, id=group_id, slug=group_slug)
 
     # Проверка, является ли пользователь уже участником группы
@@ -275,7 +306,7 @@ def join_group(request, group_id, group_slug):
                     group=group,
                     verb=f'{request.user.nickname} joined our group, wellcome!'
                 )
-    # Перенаправление на страницу группы
+    # Перенаправление на страницу группы 
     return redirect('groups:group_detail', id=group.id, slug=group.slug)
 
 @login_required

@@ -16,11 +16,19 @@
       {{ group_form.name.errors }}
     </div>
 
+    <!-- Статус -->
+    <div class="form-row">
+      <label for="id_status">Status:</label>
+      <select name="status" id="id_status" class="custom-select">
+        <option value="O">Opened</option>
+        <option value="C" selected>Closed</option>
+      </select>   
+    </div>
+
     <!-- Логотип -->
     <div class="form-row">
       <label for="id_logo">Logo:</label>
-      <!-- собственный file-input без «Clear» и без ссылки -->
-      <input type="file" name="logo" id="id_logo" accept="image/*">
+      <input type="file" name="logo" id="id_logo" accept="image/*" class="file-input">
       {{ group_form.logo.errors }}
     </div>
 
@@ -37,7 +45,7 @@
       {% endif %}
     </div>
 
-    <!-- Теги (если есть в форме) -->
+    <!-- Теги -->
     {% if group_form.tags %}
       <div class="form-row">
         <label>Tags:</label>
@@ -58,14 +66,13 @@
 </div>
 
 <script>
-  // При выборе нового файла — обновляем <img id="logo-preview">
+  // Обновляем превью логотипа при выборе нового файла
   document.getElementById('id_logo').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       let img = document.getElementById('logo-preview');
-      // если превью ещё не <img>, заменяем блок-заглушку
       if (img.tagName !== 'IMG') {
         const wrapper = img.parentNode;
         img.remove();
@@ -80,70 +87,107 @@
 </script>
 
 <style>
+  /* Основной контейнер */
   .edit-container {
-    max-width: 600px;
+    max-width: 700px;
     margin: 40px auto;
-    background: #1e1e1e;
-    padding: 24px;
+    background: #222;
+    padding: 32px;
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    color: #eee;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: #ddd;
+    font-family: 'Arial', sans-serif;
   }
+
+  /* Заголовок */
   .edit-container h1 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
   }
+
+  /* Строки формы */
   .form-row {
-    margin-bottom: 18px;
+    margin-bottom: 24px;
   }
+
+  /* Метки */
   .form-row label {
     display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
     color: #ccc;
   }
+
+  /* Поля ввода */
   .form-row input[type="text"],
-  .form-row textarea {
+  .form-row textarea,
+  .form-row select {
     width: 100%;
-    padding: 10px;
-    background: #2e2e2e;
+    padding: 12px;
+    background: #333;
     border: 1px solid #444;
     border-radius: 8px;
     color: #eee;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
   }
+
   .form-row input[type="file"] {
     width: 100%;
-    background: #2e2e2e;
+    padding: 10px;
+    background: #333;
     border: 1px solid #444;
     border-radius: 8px;
-    padding: 6px;
     color: #eee;
+    font-size: 14px;
     cursor: pointer;
   }
+
+  /* Стили для кастомного селектора */
+  .custom-select {
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #444;
+  }
+
+  /* Превью логотипа */
   .logo-preview {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
+
   .logo-preview img,
   .logo-placeholder {
     display: inline-block;
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
     object-fit: cover;
     border-radius: 10px;
     border: 2px solid #444;
+    transition: transform 0.3s ease;
   }
+
+  .logo-preview img:hover {
+    transform: scale(1.05);
+  }
+
   .logo-placeholder {
-    line-height: 200px;
-    font-size: 80px;
+    line-height: 220px;
+    font-size: 90px;
     background: #444;
-    user-select: none;
     color: #eee;
+    user-select: none;
   }
+
+  /* Кнопка сохранения */
   .save-button {
     display: block;
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     font-size: 16px;
     font-weight: bold;
     background: #4caf50;
@@ -151,10 +195,28 @@
     border-radius: 8px;
     color: #fff;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
   }
+
   .save-button:hover {
     background: #45a049;
+    transform: scale(1.05);
+  }
+
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .edit-container {
+      padding: 20px;
+      max-width: 100%;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+    }
+
+    .save-button {
+      font-size: 14px;
+    }
   }
 </style>
 {% endblock %}

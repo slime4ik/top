@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+<!-- Friend Requests Section -->
+<section class="col-span-1 bg-gray-900 rounded-2xl shadow-lg p-5">
+    <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-2">
+      <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 8a6 6 0 11-12 0 6 6 0 0112 0zM4 20h16M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        Friend Requests
+        {% if friend_requests.count > 0 %}
+          <span class="ml-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">{{ friend_requests.count }}</span>
+        {% endif %}
+      </h2>
+    </div>
+  
+    {% if friend_requests %}
+      <div class="space-y-3">
+        {% for request in friend_requests %}
+          <div class="flex items-center justify-between bg-gray-800 hover:bg-gray-700/80 p-3 rounded-lg transition group">
+            <div class="flex items-center gap-3">
+              <a href="{% url 'accounts:profile_check' request.user_from.id request.user_from.slug %}" title="{{ request.user_from.nickname }}">
+                {% thumbnail request.user_from.avatar "40x40" crop="center" quality=90 as im %}
+                <img src="{{ im.url }}" class="w-10 h-10 rounded-full object-cover ring-2 ring-blue-400/60 hover:ring-blue-300 transition" alt="{{ request.user_from.nickname }}">
+              {% endthumbnail %}
+              </a>
+              <div>
+                <a href="{% url 'accounts:profile_check' request.user_from.id request.user_from.slug %}" class="text-white font-medium hover:text-blue-300 transition">
+                  {{ request.user_from.nickname }}
+                </a>
+                <p class="text-xs text-gray-400">{{ request.created_at|timesince }} ago</p>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <form method="post" action="{% url 'accounts:accept_friend_request' request.id %}">
+                {% csrf_token %}
+                <button class="bg-green-600 hover:bg-green-500 text-xs px-3 py-1 text-white rounded-full transition">Accept</button>
+              </form>
+              <form method="post" action="{% url 'accounts:reject_friend_request' request.id %}">
+                {% csrf_token %}
+                <button class="bg-red-500 hover:bg-red-400 text-xs px-3 py-1 text-white rounded-full transition">Decline</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-6 text-gray-400 text-sm">
+        No pending friend requests
+      </div>
+    {% endif %}
+  </section>
+  
+  
+
+    <!-- Notifications Section -->
+    <section class="col-span-1 md:col-span-2 bg-gray-900 rounded-2xl shadow-lg p-5">
+      <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-2">
+        <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M13 16h-1v-4h-1m1-4h.01M12 9v2m6.364-2.364A9 9 0 106.343 6.343 9 9 0 0018.364 18.364z" />
+          </svg>
+          Notifications
+          {% if notifications.count > 0 %}
+            <span class="ml-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">{{ notifications.count }}</span>
+          {% endif %}
+        </h2>
+        {% comment %} <form method="post" action="{% url 'accounts:mark_all_read' %}">
+          {% csrf_token %}
+          <button class="text-xs text-blue-400 hover:text-blue-300">Mark all as read</button>
+        </form> {% endcomment %}
+      </div>
+
+      {% if notifications %}
+        <div class="space-y-3">
+          {% for notification in notifications %}
+            <div class="flex justify-between items-start p-3 bg-gray-800 hover:bg-gray-700/80 rounded-lg transition group">
+              <div class="flex-1">
+                <p class="text-white text-sm">{{ notification.verb }}</p>
+                <p class="text-xs text-gray-400 mt-1">{{ notification.created_at|timesince }} ago</p>
+              </div>
+              {% if not notification.read %}
+                <span class="w-2 h-2 bg-blue-500 rounded-full mt-1"></span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-6 text-gray-400 text-sm">
+          No notifications yet
+        </div>
+      {% endif %}
+    </section>
+
+  </div>
+</div>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
