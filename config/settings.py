@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
-
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,8 +26,10 @@ SECRET_KEY = 'django-insecure-m19kgm$!a56s60(6i(gp6w(l7hss%4^thilc0j#@!qqjk+_+i7
 DEBUG = True
 # SERVE_MEDIA = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://slime4ik-top-1d69.twc1.net'
+]
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'accounts:home'
@@ -39,10 +41,17 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Настройки для Mailtrap
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '5617c3320d5130'
-EMAIL_HOST_PASSWORD = '743cb0d4c1bdf3'
-EMAIL_PORT = '2525'
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = '5617c3320d5130'
+# EMAIL_HOST_PASSWORD = '743cb0d4c1bdf3'
+# EMAIL_PORT = '2525'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chempion2006vtf@gmail.com'
+EMAIL_HOST_PASSWORD = 'iekv petu vesz xjow'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -94,41 +103,46 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 ASGI_APPLICATION = 'config.asgi.application'
 
+from urllib.parse import quote
+
+REDIS_HOST = "91.222.237.74"
+REDIS_PORT = 6379
+REDIS_USER = "default"
+RAW_PASSWORD = 't10B=xp};DD2d~'  # Исходный пароль
+REDIS_PASSWORD = quote(RAW_PASSWORD)  # Кодируем (преобразует } в %7D и т.д.)
+
+REDIS_URL = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+
+# Настройки Channels
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [("127.0.0.1", 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL],
         },
     },
 }
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+# Настройки Celery
+CELERY_BROKER_URL = REDIS_URL + "/0"
+CELERY_RESULT_BACKEND = REDIS_URL + "/0"
 
-# Всего 16 баз по дефолту
+# Настройки кеша
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL + "/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
-
+# PostgreSQL settings
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'slava_db',
-        'USER': 'postgres',
-        'PASSWORD': 'slava',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.parse(
+        'postgresql://gen_user:JS(+0>S>PYjnPB@80.90.188.176:5432/default_db'
+    )
 }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
