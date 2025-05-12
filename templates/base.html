@@ -433,6 +433,35 @@
             display: none;
         }
     }
+    .header-video {
+        width: 100%;
+        height: auto;
+        max-height: 60vh; /* Ограничиваем максимальную высоту */
+        object-fit: cover;
+        display: block;
+        margin: 0 auto;
+        background: #1e1e1e; /* Фон на случай если видео не загрузится */
+    }
+    
+    .video-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    /* Для мобильных устройств */
+    @media (max-width: 768px) {
+        .header-video {
+            max-height: 40vh;
+        }
+    }
+    
+    /* Оптимизация для Safari */
+    @supports (-webkit-touch-callout: none) {
+        .header-video {
+            height: 40vh; /* Фиксированная высота для iOS */
+        }
+    }
 </style>
 <body>
     <header>

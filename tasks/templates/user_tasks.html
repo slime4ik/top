@@ -2,7 +2,7 @@
 {% load static %}
 {% load thumbnail %}
 
-{% block content %}
+{% block extra_css %}
 <style>
     :root {
         --dark-bg: #1e1e2e;
@@ -25,112 +25,78 @@
         --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
 
-    body {
-        background-color: var(--darker-bg);
-        color: var(--text-color);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    .compact-task-list {
+        display: grid;
+        gap: 12px;
     }
 
-    /* Анимации */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-
-    /* Основные стили */
-    .task-card {
+    .compact-task-card {
         background-color: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: var(--border-radius);
-        margin-bottom: 20px;
-        overflow: hidden;
+        padding: 16px;
         transition: var(--transition);
-        box-shadow: var(--shadow-sm);
-        animation: fadeIn 0.3s ease-out;
-    }
-
-    .task-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .task-header {
-        background-color: var(--dark-bg);
-        padding: 18px 24px;
-        border-bottom: 1px solid var(--card-border);
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto;
         align-items: center;
-        transition: var(--transition);
+        gap: 16px;
     }
 
-    .task-header:hover {
-        background-color: #252536;
+    .compact-task-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-color);
     }
 
-    .task-title {
-        font-size: 1.25rem;
+    .compact-task-info {
+        display: grid;
+        gap: 8px;
+    }
+
+    .compact-task-title {
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--text-color);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 10px;
-    }
-
-    .task-meta {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-top: 8px;
-    }
-
-    .task-body {
-        padding: 0;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .task-body.expanded {
-        max-height: 5000px;
-    }
-
-    .task-content {
-        padding: 24px;
-    }
-
-    .section-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: var(--text-color);
-        display: flex;
-        align-items: center;
         gap: 8px;
     }
 
-    .section-title i {
-        font-size: 1.1rem;
+    .compact-task-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: var(--transition);
     }
 
-    /* Элементы статуса */
+    .compact-task-title a:hover {
+        color: var(--primary-color);
+    }
+
+    .compact-task-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .compact-task-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     .status-badge {
-        padding: 6px 12px;
+        padding: 5px 12px;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
 
     .status-waiting {
@@ -151,272 +117,69 @@
     .status-overdue {
         background-color: var(--error-bg);
         color: white;
-        animation: pulse 1.5s infinite;
     }
 
-    /* Информация о создателе */
-    .creator-info {
+    .compact-task-actions {
         display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--card-border);
+        gap: 8px;
     }
 
-    .creator-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        margin-right: 12px;
-        object-fit: cover;
-        border: 2px solid var(--primary-color);
-    }
-
-    .creator-details {
-        font-size: 0.95rem;
-    }
-
-    .creator-name {
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .creator-name a {
-        color: inherit;
-        text-decoration: none;
-        transition: var(--transition);
-    }
-
-    .creator-name a:hover {
-        color: var(--primary-color);
-    }
-
-    .creator-date {
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
         color: var(--text-muted);
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        max-width: 500px;
+        margin: 0 auto;
     }
 
-    /* Описание задачи */
-    .task-description {
-        margin-bottom: 24px;
-        line-height: 1.7;
-        color: var(--text-color);
+    .empty-state-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        opacity: 0.7;
     }
 
-    /* Файлы */
-    .task-files {
-        margin-bottom: 24px;
+    .empty-state h3 {
+        font-weight: 600;
+        margin-bottom: 10px;
     }
 
-    .file-badge {
-        background-color: var(--dark-bg);
-        color: var(--text-color);
-        border: 1px solid var(--card-border);
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: var(--transition);
-        text-decoration: none;
-    }
-
-    .file-badge:hover {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    /* Подзадачи */
-    .subtasks-section {
-        margin-bottom: 24px;
-    }
-
-    .subtask-item {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: var(--transition);
-    }
-
-    .subtask-item:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .subtask-header {
+    .page-header {
+        margin-bottom: 30px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .subtask-title {
-        font-weight: 500;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .subtask-status-select {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        color: var(--text-color);
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: var(--transition);
-        min-width: 120px;
-    }
-
-    .subtask-status-select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
-    }
-
-    .subtask-actions {
-        display: flex;
-        gap: 8px;
-    }
-
-    /* Комментарии */
-    .comments-section {
-        margin-bottom: 24px;
-    }
-
-    .comment-item {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: var(--transition);
-    }
-
-    .comment-item:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .comment-author {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .comment-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        margin-right: 12px;
-        object-fit: cover;
-        border: 1px solid var(--primary-color);
-    }
-
-    .comment-author-info {
-        flex: 1;
-    }
-
-    .comment-author-name {
-        font-weight: 500;
-        font-size: 0.95rem;
-    }
-
-    .comment-author-name a {
-        color: inherit;
-        text-decoration: none;
-        transition: var(--transition);
-    }
-
-    .comment-author-name a:hover {
-        color: var(--primary-color);
-    }
-
-    .comment-date {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .comment-text {
-        margin-bottom: 12px;
-        line-height: 1.6;
-        color: var(--text-color);
-    }
-
-    /* Изображения в комментариях */
-    .comment-images {
-        display: flex;
         flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 12px;
+        gap: 20px;
     }
 
-    .image-preview {
-        width: 100px;
-        height: 100px;
-        border-radius: 6px;
-        object-fit: cover;
-        cursor: pointer;
-        transition: var(--transition);
-        border: 1px solid var(--card-border);
-    }
-
-    .image-preview:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-sm);
-    }
-
-    /* Форма комментария */
-    .comment-form {
-        margin-top: 20px;
-    }
-
-    .comment-textarea {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
         color: var(--text-color);
-        border-radius: 8px;
-        padding: 12px;
-        width: 100%;
-        min-height: 100px;
-        resize: vertical;
-        transition: var(--transition);
-        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
     }
 
-    .comment-textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+    .page-actions {
+        display: flex;
+        gap: 12px;
     }
 
-    /* Кнопки */
     .btn {
         border-radius: 8px;
-        padding: 8px 16px;
-        font-size: 0.85rem;
+        padding: 10px 18px;
+        font-size: 0.9rem;
         font-weight: 500;
         transition: var(--transition);
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         cursor: pointer;
         border: none;
+        text-decoration: none;
     }
 
     .btn-primary {
@@ -426,7 +189,7 @@
 
     .btn-primary:hover {
         background-color: var(--primary-hover);
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow: var(--shadow-sm);
     }
 
@@ -440,877 +203,174 @@
         background-color: rgba(124, 77, 255, 0.1);
     }
 
-    .btn-danger {
-        background-color: var(--error-bg);
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background-color: #e53935;
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
-    }
-
-    /* Участники задачи */
-    .task-users {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .user-badge {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: var(--transition);
-    }
-
-    .user-badge:hover {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .user-badge a {
-        color: inherit;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .user-avatar {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    /* Действия с задачей */
-    .task-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 24px;
-        padding-top: 20px;
-        border-top: 1px solid var(--card-border);
-    }
-
-    .task-status-select {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        color: var(--text-color);
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: var(--transition);
-        min-width: 140px;
-    }
-
-    .task-status-select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
-    }
-
-    /* Пустое состояние */
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--text-muted);
-    }
-
-    .empty-state i {
-        font-size: 3.5rem;
-        margin-bottom: 20px;
-        color: var(--primary-color);
-        opacity: 0.7;
-    }
-
-    .empty-state h3 {
-        font-weight: 500;
-        margin-bottom: 10px;
-    }
-
-    /* Пагинация */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 40px;
-        gap: 8px;
-    }
-
-    .page-item {
-        list-style: none;
-    }
-
-    .page-link {
-        background-color: var(--dark-bg);
-        border: 1px solid var(--card-border);
-        color: var(--text-color);
-        padding: 8px 14px;
-        border-radius: 8px;
-        transition: var(--transition);
-        text-decoration: none;
-        display: block;
-        min-width: 40px;
-        text-align: center;
-    }
-
-    .page-link:hover {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .page-item.active .page-link {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: white;
-        font-weight: 500;
-    }
-
-    .page-item.disabled .page-link {
-        color: var(--text-muted);
-        background-color: var(--dark-bg);
-        border-color: var(--card-border);
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none !important;
-    }
-
-    /* Модальное окно */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease-out;
-        backdrop-filter: blur(5px);
-    }
-
-    .modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .modal-content {
-        max-width: 90%;
-        max-height: 90%;
-        position: relative;
-    }
-
-    .modal-image {
-        max-width: 100%;
-        max-height: 90vh;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .close-modal {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        color: white;
-        font-size: 2.5rem;
-        cursor: pointer;
-        transition: var(--transition);
-        background: rgba(0, 0, 0, 0.5);
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-    }
-
-    .close-modal:hover {
-        transform: rotate(90deg);
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Адаптивность */
     @media (max-width: 768px) {
-        .task-header {
-            padding: 14px 16px;
+        .compact-task-card {
+            grid-template-columns: 1fr;
         }
         
-        .task-content {
-            padding: 16px;
+        .compact-task-actions {
+            justify-content: flex-end;
         }
         
-        .task-title {
-            font-size: 1.1rem;
-        }
-        
-        .creator-avatar {
-            width: 40px;
-            height: 40px;
-        }
-        
-        .task-actions {
-            flex-direction: column;
-            gap: 12px;
-            align-items: flex-start;
-        }
-        
-        .pagination {
-            flex-wrap: wrap;
+        .page-title {
+            font-size: 1.5rem;
         }
     }
 
-    @media (max-width: 480px) {
-        .task-header {
+    @media (max-width: 576px) {
+        .compact-task-meta {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .task-meta {
-            flex-direction: column;
-            gap: 5px;
-            align-items: flex-start;
-        }
-        
-        .subtask-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .subtask-actions {
-            width: 100%;
-            justify-content: flex-end;
+            gap: 8px;
         }
     }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="container py-4">
-    <h1 class="mb-4" style="font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-tasks"></i>
-        Мои задачи
-    </h1>
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-tasks"></i>
+            Мои задачи
+        </h1>
+        <div class="page-actions">
+            <a href="{% url 'groups:groups' %}" class="btn btn-outline">
+                <i class="fas fa-users"></i>
+                Мои группы
+            </a>
+        </div>
+    </div>
 
     {% if user_tasks %}
-        <div class="tasks-container">
+        <div class="compact-task-list">
             {% for task in user_tasks %}
-                <div class="task-card">
-                    <div class="task-header" onclick="toggleTaskDetails('task-{{ task.id }}', this)">
-                        <div>
-                            <h3 class="task-title">
-                                <i class="fas fa-tasks" style="color: var(--primary-color);"></i>
+                <div class="compact-task-card" id="task-{{ task.id }}">
+                    <div class="compact-task-info">
+                        <h3 class="compact-task-title">
+                            <i class="fas fa-tasks" style="color: var(--primary-color);"></i>
+                            <a href="{% url 'groups:group_detail' task.group.id task.group.slug %}#task-{{ task.id }}">
                                 {{ task.title }}
-                                <span class="status-badge status-{{ task.status }}{% if task.dead_line and task.dead_line < now %} status-overdue{% endif %}">
-                                    {% if task.dead_line and task.dead_line < now %}
-                                        Просрочено
-                                    {% else %}
-                                        {{ task.get_status_display }}
-                                    {% endif %}
-                                </span>
-                            </h3>
-                            <div class="task-meta">
-                                {% if task.dead_line %}
-                                    <span>
-                                        <i class="fas fa-clock" style="margin-right: 4px;"></i>
-                                        {{ task.dead_line|date:"d M Y H:i" }}
-                                    </span>
-                                {% else %}
-                                    <span>
-                                        <i class="far fa-clock" style="margin-right: 4px;"></i>
-                                        Нет срока
-                                    </span>
-                                {% endif %}
-                                <span>
-                                    <i class="fas fa-users" style="margin-right: 4px;"></i>
-                                    {{ task.user.count }} участник{{ task.user.count|pluralize:"ов" }}
-                                </span>
-                                <span>
-                                    <i class="fas fa-check-circle" style="margin-right: 4px;"></i>
-                                    {{ task.completed_subtasks }} из {{ task.subtasks.count }} выполнено
-                                </span>
+                            </a>
+                        </h3>
+                        <div class="compact-task-meta">
+                            <div class="compact-task-meta-item">
+                                <i class="fas fa-users"></i>
+                                Группа: {{ task.group.name }}
                             </div>
-                        </div>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-
-                    <div id="task-{{ task.id }}" class="task-body">
-                        <div class="task-content">
-                            <div class="creator-info">
-                                {% if task.creator.avatar %}
-                                    {% thumbnail task.creator.avatar "48x48" crop="center" as im %}
-                                        <img src="{{ im.url }}" class="creator-avatar" alt="{{ task.creator.nickname }}">
-                                    {% endthumbnail %}
-                                {% else %}
-                                    <img src="{% static 'images/default-avatar.png' %}" class="creator-avatar" alt="Default avatar">
-                                {% endif %}
-                                <div class="creator-details">
-                                    <div class="creator-name">
-                                        <a href="{% url 'accounts:profile_check' task.creator.id task.creator.slug %}">
-                                            {{ task.creator.nickname }}
-                                        </a>
-                                    </div>
-                                    <div class="creator-date">
-                                        <i class="far fa-calendar-alt"></i>
-                                        Создано: {{ task.created_at|date:"d.m.Y H:i" }}
-                                    </div>
-                                </div>
+                            <div class="compact-task-meta-item">
+                                <i class="fas fa-user"></i>
+                                Создатель: {{ task.creator.nickname }}
                             </div>
-
-                            <div class="task-description">
-                                <h6 class="section-title">
-                                    <i class="fas fa-align-left"></i>
-                                    Описание
-                                </h6>
-                                <p>{{ task.description|default:"Нет описания"|linebreaks }}</p>
+                            <div class="compact-task-meta-item">
+                                <i class="far fa-calendar-alt"></i>
+                                Создано: {{ task.created_at|date:"d.m.Y" }}
                             </div>
-
-                            {% if task.files.all %}
-                                <div class="task-files">
-                                    <h6 class="section-title">
-                                        <i class="fas fa-paperclip"></i>
-                                        Файлы ({{ task.files.count }})
-                                    </h6>
-                                    <div>
-                                        {% for file in task.files.all %}
-                                            <a href="{{ file.file.url }}" target="_blank" class="file-badge">
-                                                <i class="fas fa-file"></i>
-                                                {{ file.get_filename|truncatechars:20 }}
-                                            </a>
-                                        {% endfor %}
-                                    </div>
+                            {% if task.dead_line %}
+                                <div class="compact-task-meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    Срок: {{ task.dead_line|date:"d.m.Y" }}
                                 </div>
                             {% endif %}
-
-                            <div class="subtasks-section">
-                                <h6 class="section-title">
-                                    <i class="fas fa-tasks"></i>
-                                    Подзадачи ({{ task.subtasks.count }})
-                                </h6>
-                                
-                                {% if task.subtasks.all %}
-                                    <div class="subtasks-list" style="margin-top: 16px;">
-                                        {% for subtask in task.subtasks.all %}
-                                            <div class="subtask-item">
-                                                <div class="subtask-header">
-                                                    <div class="subtask-title">
-                                                        {% if subtask.status == 'done' %}
-                                                            <i class="fas fa-check-circle" style="color: var(--success-bg);"></i>
-                                                        {% elif subtask.status == 'in_progress' %}
-                                                            <i class="fas fa-spinner fa-pulse" style="color: var(--warning-bg);"></i>
-                                                        {% else %}
-                                                            <i class="far fa-circle" style="color: var(--secondary-bg);"></i>
-                                                        {% endif %}
-                                                        {{ subtask.title }}
-                                                    </div>
-                                                    {% if request.user in subtask.user.all %}
-                                                        <div class="subtask-actions">
-                                                            <form method="post" action="{% url 'tasks:change_subtask_status' subtask_id=subtask.id %}" class="d-inline">
-                                                                {% csrf_token %}
-                                                                <select name="status" class="subtask-status-select" onchange="this.form.submit()">
-                                                                    {% for value, display in subtask.STATUS_CHOICES %}
-                                                                        <option value="{{ value }}" {% if subtask.status == value %}selected{% endif %}>{{ display }}</option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            </form>
-                                                            <form method="post" action="{% url 'tasks:leave_subtask' subtask_id=subtask.id %}" class="d-inline">
-                                                                {% csrf_token %}
-                                                                <button type="submit" class="btn btn-outline">
-                                                                    <i class="fas fa-sign-out-alt"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    {% else %}
-                                                        <form method="post" action="{% url 'tasks:join_subtask' subtask_id=subtask.id %}" class="d-inline">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="btn btn-primary">
-                                                                <i class="fas fa-user-plus"></i>
-                                                                Взять
-                                                            </button>
-                                                        </form>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                {% if subtask.description %}
-                                                    <p class="mb-3">{{ subtask.description|linebreaks }}</p>
-                                                {% endif %}
-                                                
-                                                {% if subtask.files.all %}
-                                                    <div class="mb-3">
-                                                        {% for file in subtask.files.all %}
-                                                            <a href="{{ file.file.url }}" target="_blank" class="file-badge">
-                                                                <i class="fas fa-file"></i>
-                                                                {{ file.get_filename|truncatechars:15 }}
-                                                            </a>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
-                                                
-                                                {% if subtask.user.all %}
-                                                    <div class="task-users">
-                                                        {% for user in subtask.user.all %}
-                                                            <div class="user-badge">
-                                                                <a href="{% url 'accounts:profile_check' user.id user.slug %}">
-                                                                    {% if user.avatar %}
-                                                                        {% thumbnail user.avatar "20x20" crop="center" as im %}
-                                                                            <img src="{{ im.url }}" class="user-avatar" alt="{{ user.nickname }}">
-                                                                        {% endthumbnail %}
-                                                                    {% else %}
-                                                                        <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default avatar">
-                                                                    {% endif %}
-                                                                    {{ user.nickname }}
-                                                                </a>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="empty-state py-3">
-                                        <i class="fas fa-tasks"></i>
-                                        <p>Нет подзадач</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="comments-section">
-                                <h6 class="section-title">
-                                    <i class="fas fa-comments"></i>
-                                    Комментарии ({{ task.comments.count }})
-                                </h6>
-                                
-                                {% if task.comments.all %}
-                                    <div class="comments-list" style="margin-top: 16px;">
-                                        {% for comment in task.comments.all %}
-                                            <div class="comment-item">
-                                                <div class="comment-author">
-                                                    {% if comment.user.avatar %}
-                                                        {% thumbnail comment.user.avatar "32x32" crop="center" as im %}
-                                                            <img src="{{ im.url }}" class="comment-avatar" alt="{{ comment.user.nickname }}">
-                                                        {% endthumbnail %}
-                                                    {% else %}
-                                                        <img src="{% static 'images/default-avatar.png' %}" class="comment-avatar" alt="Default avatar">
-                                                    {% endif %}
-                                                    <div class="comment-author-info">
-                                                        <div class="comment-author-name">
-                                                            <a href="{% url 'accounts:profile_check' comment.user.id comment.user.slug %}">
-                                                                {{ comment.user.nickname }}
-                                                            </a>
-                                                        </div>
-                                                        <div class="comment-date">
-                                                            <i class="far fa-clock"></i>
-                                                            {{ comment.created_at|date:"d.m.Y H:i" }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="comment-text">
-                                                    {{ comment.text|linebreaks }}
-                                                </div>
-                                                {% if comment.image %}
-                                                    <div class="comment-images">
-                                                        <img src="{{ comment.image.url }}" class="image-preview" 
-                                                             onclick="openModal('{{ comment.image.url }}')">
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="empty-state py-3">
-                                        <i class="fas fa-comment-slash"></i>
-                                        <p>Нет комментариев</p>
-                                    </div>
-                                {% endif %}
-                                
-                                <div class="comment-form mt-4">
-                                    <form method="post" action="{% url 'tasks:add_comment' task_id=task.id %}" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <textarea name="text" class="comment-textarea" placeholder="Напишите комментарий..." required></textarea>
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <label for="comment-image-{{ task.id }}" class="btn btn-outline" style="cursor: pointer;">
-                                                    <i class="fas fa-image"></i>
-                                                    Прикрепить изображение
-                                                </label>
-                                                <input type="file" name="image" id="comment-image-{{ task.id }}" style="display: none;" accept="image/*">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-paper-plane"></i>
-                                                Отправить
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="task-actions">
-                                <div class="task-users">
-                                    {% for user in task.user.all %}
-                                        <div class="user-badge">
-                                            <a href="{% url 'accounts:profile_check' user.id user.slug %}">
-                                                {% if user.avatar %}
-                                                    {% thumbnail user.avatar "20x20" crop="center" as im %}
-                                                        <img src="{{ im.url }}" class="user-avatar" alt="{{ user.nickname }}">
-                                                    {% endthumbnail %}
-                                                {% else %}
-                                                    <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default avatar">
-                                                {% endif %}
-                                                {{ user.nickname }}
-                                            </a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                                <div style="display: flex; gap: 10px;">
-                                    <form method="post" action="{% url 'tasks:change_task_status' task_id=task.id %}">
-                                        {% csrf_token %}
-                                        <select name="status" class="task-status-select" onchange="this.form.submit()">
-                                            {% for value, display in task.STATUS_CHOICES %}
-                                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ display }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </form>
-                                    <form method="post" action="{% url 'tasks:leave_task' task_id=task.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fas fa-sign-out-alt"></i>
-                                            Покинуть
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+                    <div class="compact-task-actions">
+                        <span class="status-badge status-{{ task.status }}{% if task.dead_line and task.dead_line < now %} status-overdue{% endif %}">
+                            {% if task.dead_line and task.dead_line < now %}
+                                <i class="fas fa-exclamation-circle"></i> Просрочено
+                            {% else %}
+                                <i class="fas fa-{% if task.status == 'waiting' %}clock{% elif task.status == 'in_progress' %}spinner fa-pulse{% else %}check-circle{% endif %}"></i>
+                                {{ task.get_status_display }}
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             {% endfor %}
         </div>
-
-        <!-- Пагинация -->
-        {% if user_tasks.has_other_pages %}
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    {% if user_tasks.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1" aria-label="First">
-                                <i class="fas fa-angle-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ user_tasks.previous_page_number }}" aria-label="Previous">
-                                <i class="fas fa-angle-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">
-                                <i class="fas fa-angle-double-left"></i>
-                            </span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link">
-                                <i class="fas fa-angle-left"></i>
-                            </span>
-                        </li>
-                    {% endif %}
-
-                    {% for i in user_tasks.paginator.page_range %}
-                        {% if user_tasks.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i > user_tasks.number|add:'-3' and i < user_tasks.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if user_tasks.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ user_tasks.next_page_number }}" aria-label="Next">
-                                <i class="fas fa-angle-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ user_tasks.paginator.num_pages }}" aria-label="Last">
-                                <i class="fas fa-angle-double-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">
-                                <i class="fas fa-angle-right"></i>
-                            </span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link">
-                                <i class="fas fa-angle-double-right"></i>
-                            </span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        {% endif %}
     {% else %}
         <div class="empty-state">
-            <i class="fas fa-tasks"></i>
+            <i class="fas fa-tasks empty-state-icon"></i>
             <h3>Нет активных задач</h3>
-            <p>Вы можете присоединиться к задачам в ваших группах</p>
+            <p>Вы не участвуете ни в каких задачах. Присоединитесь к задачам в ваших группах.</p>
             <a href="{% url 'groups:groups' %}" class="btn btn-primary mt-3">
                 <i class="fas fa-users"></i>
                 Мои группы
             </a>
         </div>
     {% endif %}
-
-    <!-- Модальное окно для изображений -->
-    <div class="modal-overlay" id="image-modal">
-        <button class="close-modal" onclick="closeModal()">&times;</button>
-        <div class="modal-content">
-            <img id="modal-image" class="modal-image" src="" alt="Увеличенное изображение">
-        </div>
-    </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Анимация открытия/закрытия деталей задачи
-    function toggleTaskDetails(taskId, headerElement) {
-        const taskElement = document.getElementById(taskId);
-        const chevron = headerElement.querySelector('.fa-chevron-down, .fa-chevron-up');
-        
-        taskElement.classList.toggle('expanded');
-        
-        if (taskElement.classList.contains('expanded')) {
-            chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        } else {
-            chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        }
-    }
-
-    // Модальное окно для изображений
-    function openModal(imageSrc) {
-        const modal = document.getElementById('image-modal');
-        const modalImg = document.getElementById('modal-image');
-        modalImg.src = imageSrc;
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('image-modal');
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-
-    // Закрытие модального окна при клике вне изображения
-    document.getElementById('image-modal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeModal();
-        }
-    });
-
-    // Открываем первую задачу автоматически
     document.addEventListener('DOMContentLoaded', function() {
-        const firstTask = document.querySelector('.task-card');
-        if(firstTask) {
-            const firstTaskId = firstTask.querySelector('.task-body').id;
-            const firstTaskHeader = firstTask.querySelector('.task-header');
-            toggleTaskDetails(firstTaskId, firstTaskHeader);
-            }
-    // Добавляем интерактивность для статусов подзадач
-    const statusSelects = document.querySelectorAll('.subtask-status-select');
-    statusSelects.forEach(select => {
-        select.addEventListener('change', function() {
-            // Добавляем визуальную обратную связь
-            const card = this.closest('.subtask-item');
-            card.style.boxShadow = '0 0 0 2px rgba(124, 77, 255, 0.5)';
-            setTimeout(() => {
-                card.style.boxShadow = '';
-            }, 500);
+        // Подсветка при наведении на карточку задачи
+        const taskCards = document.querySelectorAll('.compact-task-card');
+        
+        taskCards.forEach(card => {
+            // Сохраняем оригинальный цвет границы
+            const originalBorderColor = card.style.borderColor || getComputedStyle(card).borderColor;
             
-            // Показываем лоадер
-            const form = this.closest('form');
-            const submitButton = form.querySelector('[type="submit"]');
-            if (submitButton) {
-                const originalText = submitButton.innerHTML;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
+            card.addEventListener('mouseenter', () => {
+                card.style.borderColor = 'var(--primary-color)';
+                card.style.boxShadow = '0 4px 12px rgba(124, 77, 255, 0.15)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = originalBorderColor;
+                card.style.boxShadow = '';
+            });
+            
+            // Клик по всей карточке (кроме действий)
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.compact-task-actions')) {
+                    const link = card.querySelector('a');
+                    if (link) {
+                        link.click();
+                    }
+                }
+            });
+        });
+        
+        // Плавное выделение задачи, если в URL есть якорь
+        const hash = window.location.hash;
+        if (hash) {
+            const targetTask = document.querySelector(hash);
+            if (targetTask) {
                 setTimeout(() => {
-                    form.submit();
+                    targetTask.style.boxShadow = '0 0 0 3px rgba(124, 77, 255, 0.5)';
+                    targetTask.style.transition = 'box-shadow 0.3s ease';
+                    
+                    setTimeout(() => {
+                        targetTask.style.boxShadow = '';
+                    }, 2000);
+                    
+                    // Плавная прокрутка к задаче
+                    targetTask.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
                 }, 300);
             }
-        });
-    });
-
-    // Анимация при наведении на элементы
-    const interactiveElements = document.querySelectorAll('.task-card, .subtask-item, .comment-item, .file-badge, .user-badge');
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            el.style.transform = 'translateY(-3px)';
-        });
-        el.addEventListener('mouseleave', () => {
-            el.style.transform = '';
-        });
-    });
-
-    // Плавная прокрутка к задачам
-    const taskLinks = document.querySelectorAll('a[href^="#task-"]');
-    taskLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                // Открываем задачу если она закрыта
-                const header = targetElement.previousElementSibling;
-                if (!targetElement.classList.contains('expanded')) {
-                    toggleTaskDetails(targetId.slice(1), header);
-                }
-                
-                // Плавная прокрутка
-                window.scrollTo({
-                    top: targetElement.offsetTop - 20,
-                    behavior: 'smooth'
-                });
-                
-                // Подсветка на 2 секунды
-                targetElement.style.boxShadow = '0 0 0 3px rgba(124, 77, 255, 0.5)';
-                setTimeout(() => {
-                    targetElement.style.boxShadow = '';
-                }, 2000);
-            }
-        });
-    });
-
-    // Динамическая загрузка изображений при прокрутке
-    const lazyImages = document.querySelectorAll('.image-preview');
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src || img.src;
-                img.classList.add('loaded');
-                observer.unobserve(img);
-            }
-        });
-    }, { rootMargin: '100px' });
-
-    lazyImages.forEach(img => {
-        if (!img.classList.contains('loaded')) {
-            imageObserver.observe(img);
         }
-    });
-
-    // Обработка формы комментария
-    const commentForms = document.querySelectorAll('.comment-form form');
-    commentForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const textarea = this.querySelector('textarea');
-            if (textarea.value.trim() === '') {
-                e.preventDefault();
-                textarea.style.borderColor = 'var(--error-bg)';
+        
+        // Анимация загрузки
+        const links = document.querySelectorAll('a[href]');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href.includes('#')) return; // Не применяем для якорных ссылок
+                
+                const spinner = document.createElement('i');
+                spinner.className = 'fas fa-spinner fa-spin';
+                
+                const originalContent = this.innerHTML;
+                this.innerHTML = '';
+                this.appendChild(spinner);
+                
                 setTimeout(() => {
-                    textarea.style.borderColor = '';
-                }, 2000);
-                return false;
-            }
-            
-            // Показываем лоадер
-            const submitButton = this.querySelector('[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-            }
+                    this.innerHTML = originalContent;
+                }, 1000);
+            });
         });
     });
-
-    // Drag and drop для файлов
-    const fileInputs = document.querySelectorAll('input[type="file"]');
-    fileInputs.forEach(input => {
-        const label = input.previousElementSibling;
-        if (label && label.tagName === 'LABEL') {
-            label.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                label.style.backgroundColor = 'rgba(124, 77, 255, 0.1)';
-                label.style.borderColor = 'var(--primary-color)';
-            });
-            
-            label.addEventListener('dragleave', () => {
-                label.style.backgroundColor = '';
-                label.style.borderColor = '';
-            });
-            
-            label.addEventListener('drop', (e) => {
-                e.preventDefault();
-                label.style.backgroundColor = '';
-                label.style.borderColor = '';
-                input.files = e.dataTransfer.files;
-                
-                // Показываем количество выбранных файлов
-                if (input.files.length > 0) {
-                    label.innerHTML = `<i class="fas fa-check-circle"></i> Выбрано ${input.files.length} файл${input.files.length > 1 ? 'ов' : ''}`;
-                }
-            });
-        }
-    });
-});
-
-// Анимация при обновлении статуса задачи
-function animateStatusChange(element, newStatus) {
-    const card = element.closest('.task-card');
-    const statusBadge = card.querySelector('.status-badge');
-    
-    // Временные классы для анимации
-    statusBadge.classList.add('status-changing');
-    statusBadge.style.opacity = '0.5';
-    
-    setTimeout(() => {
-        statusBadge.className = 'status-badge';
-        statusBadge.classList.add(`status-${newStatus}`);
-        statusBadge.style.opacity = '1';
-        
-        // Текст статуса в зависимости от выбранного значения
-        const statusText = {
-            'waiting': 'Ожидает',
-            'in_progress': 'В работе',
-            'done': 'Выполнено'
-        }[newStatus];
-        
-        statusBadge.textContent = statusText;
-        
-        // Добавляем иконку в зависимости от статуса
-        const iconMap = {
-            'waiting': 'far fa-clock',
-            'in_progress': 'fas fa-spinner fa-pulse',
-            'done': 'fas fa-check-circle'
-        };
-        
-        const icon = document.createElement('i');
-        icon.className = iconMap[newStatus];
-        statusBadge.prepend(icon);
-        
-        // Анимация подтверждения
-        card.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.5)';
-        setTimeout(() => {
-            card.style.boxShadow = '';
-        }, 1000);
-    }, 300);
-}</script>
-
+</script>
 {% endblock %}

@@ -4,6 +4,7 @@ from .models import Group
 from .forms import GroupCreateForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from .forms import JoinGroupForm
 from django.db.models import Q
 from django.conf import settings
@@ -17,7 +18,8 @@ from rest_framework.response import Response
 from .models import ChatMessage
 from .serializers import ChatMessageSerializer
 from django.utils import timezone
-
+from tasks.models import SubTask, Task
+from .models import generate_unique_code
 @login_required
 def groups_view(request):
     user = request.user
@@ -127,16 +129,16 @@ def group_detail(request, id, slug):
     elif not (is_member or is_admin or ru == group.creator):
         return render(request, 'group_preview.html', {'group': group})
 
-    # Оптимизируем подгрузку задач
+
     tasks_list = (
         group.tasks
         .select_related('creator', 'group')
         .prefetch_related(
-            'user',                # M2M пользователей
-            'files',              # файлы задачи
-            'subtasks__user',     # пользователи подзадач
-            'subtasks__files',    # файлы подзадач
-            'comments__user',     # комментарии + авторы
+            'user',
+            'files',  
+            'subtasks__user',
+            'subtasks__files',
+            'comments__user',
         )
         .all()
     )
@@ -153,9 +155,29 @@ def group_detail(request, id, slug):
         [:7]
     )
 
+    # Добавим проверку для каждой задачи и расчёт процента выполнения
+    for task in page_obj:
+        task.can_be_deleted = task.can_be_deleted_by(ru)
+        
+        # Считаем процент выполнения задачи
+        total_subtasks = task.subtasks.count()
+        completed_subtasks = task.subtasks.filter(status=SubTask.STATUS_DONE).count()
+
+        if total_subtasks > 0:
+            completion_percentage = (completed_subtasks / total_subtasks) * 100
+        else:
+            completion_percentage = 0
+        
+        # Добавляем процент выполнения задачи в контекст
+        task.completion_percentage = completion_percentage
+
+        for subtask in task.subtasks.all():
+            subtask.can_be_deleted = subtask.sub_can_be_deleted_by(request.user)
+
     comment_form = CommentForm()
 
     context = {
+        'ru': request.user,
         'now': timezone.now(),
         'comment_form': comment_form,
         'group': group,
@@ -164,6 +186,7 @@ def group_detail(request, id, slug):
     }
 
     return render(request, 'detail.html', context)
+
 @login_required
 def users_list(request, id, slug):
     group = get_object_or_404(Group, id=id, slug=slug)
@@ -182,7 +205,7 @@ def users_list(request, id, slug):
 @login_required
 def open_groups(request):
     groups = Group.objects.filter(status='O')
-    paginator = Paginator(groups, 12)  # по 12 групп на страницу
+    paginator = Paginator(groups, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -360,3 +383,25 @@ def chat_message_history(request, group_id):
     serializer = ChatMessageSerializer(messages, many=True)
     return Response(serializer.data[::-1])  # Переворачиваем, чтобы новые были внизу
 
+@login_required
+@require_POST
+def refresh_group_code(request, group_id, group_slug):
+    group = get_object_or_404(Group, id=group_id, slug=group_slug)
+
+    # Проверка, что пользователь является создателем или администратором
+    if request.user != group.creator and request.user not in group.admins.all():
+        messages.error(request, "You don't have permission to update the group code.")
+        return redirect(group)
+
+    # Генерация нового уникального кода
+    new_code = generate_unique_code()
+
+    # Проверка на уникальность кода и его обновление
+    while Group.objects.filter(code=new_code).exists():
+        new_code = generate_unique_code()
+
+    group.code = new_code
+    group.save()
+
+    messages.success(request, "Group code updated successfully!")
+    return redirect(group)

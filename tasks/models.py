@@ -64,6 +64,18 @@ class Task(TimeStampedModel, ProgressMixin):
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'
 
+    @property
+    def has_subtasks(self):
+        return self.subtasks.count() < 1
+
+    def can_be_deleted_by(self, user):
+        return (
+            user == self.group.creator or
+            user in self.group.admins.all()
+        )
+    # def is_past_deadline(self):
+    #     return self.dead_line < timezone.now()
+    
     def update_status_from_users(self):
         if self.user.exists():
             self.status = self.STATUS_IN_PROGRESS
@@ -72,7 +84,7 @@ class Task(TimeStampedModel, ProgressMixin):
         self.save(update_fields=['status'])
 
     def update_status_from_subtasks(self):
-        subtasks = self.subtasks.only('status')  # оптимизация
+        subtasks = self.subtasks.only('status')
 
         if not subtasks.exists():
             return
@@ -87,7 +99,10 @@ class Task(TimeStampedModel, ProgressMixin):
         if self.status != new_status:
             self.status = new_status
             self.save(update_fields=['status'])
-
+        def save(self, *args, **kwargs):
+            if self.is_past_deadline():
+                raise ValueError("Невозможно изменить задачу после дедлайна!")
+            super().save(*args, **kwargs)
 
 class TaskFile(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='files')
@@ -108,6 +123,12 @@ class SubTask(TimeStampedModel, ProgressMixin):
                                   blank=True,
                                   related_name='subtasks')
     title = models.CharField(max_length=355)
+    
+    def sub_can_be_deleted_by(self, user):
+        return (
+            user == self.task.group.creator or
+            user in self.task.group.admins.all()
+        )
 
     def update_status_from_users(self):
         if self.user.exists():
@@ -120,10 +141,10 @@ class SubTask(TimeStampedModel, ProgressMixin):
             self.save(update_fields=['status'])
 
     def save(self, *args, **kwargs):
-        # Сохраняем SubTask без логики статуса
+        is_new = self.pk is None
         super().save(*args, **kwargs)
-
-        # Обновляем статус родительской задачи асинхронно/через сигнал
+        if is_new and self.task.user.exists():
+            self.task.user.add()
         self.task.update_status_from_subtasks()
 
 

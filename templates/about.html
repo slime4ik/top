@@ -2,8 +2,23 @@
 {% load static %}
 
 {% block title %}О Taskly{% endblock %}
-
 {% block content %}
+
+<div class="video-container">
+    <video autoplay loop playsinline class="header-video" 
+           poster="{% static 'videos/poster.jpg' %}" preload="auto">
+        <source src="media/dance_fruits.mp4" type="video/mp4">
+        Your browser does not support video
+    </video>
+</div>
+<!-- Всплывающее окно с запросом разрешения -->
+<div id="video-popup" class="popup">
+    <div class="popup-content">
+        <p>Welcome! In order to enjoy the funny dancing fruit video, please enable the video with sound.</p>
+        <button id="allow-sound" class="popup-button">Allow playback</button>
+        <button id="deny-sound" class="popup-button">Don't allow</button> <!-- Кнопка для отказа -->
+    </div>
+</div>
 <div class="container py-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -193,6 +208,61 @@
         align-items: center;
         justify-content: center;
     }
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    .popup-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        color: #333; /* Тёмный цвет для текста */
+    }
+    
+    .popup-button {
+        background: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold; /* Сделаем текст кнопки жирным */
+    }
+    
+    .popup-button:hover {
+        background: #45a049; /* Цвет кнопки при наведении */
+    }
+    .popup-button {
+        background: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px; /* Чтобы кнопки не были слишком близко друг к другу */
+    }
+    
+    .popup-button:hover {
+        background: #45a049; /* Цвет кнопки при наведении */
+    }
+    
+    #deny-sound {
+        background: #f44336; /* Красный цвет для кнопки отказа */
+    }
+    
+    #deny-sound:hover {
+        background: #d32f2f; /* Темно-красный цвет при наведении */
+    }
+    
 </style>
 {% endblock %}
 
@@ -207,5 +277,34 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         });
     });
 });
+const video = document.querySelector('video');
+const popup = document.getElementById('video-popup');
+const allowButton = document.getElementById('allow-sound');
+const denyButton = document.getElementById('deny-sound');
+
+// Проверяем, был ли уже принят выбор
+if (!localStorage.getItem('videoPermission')) {
+    // Если выбора нет, показываем всплывающее окно
+    window.onload = function() {
+        popup.style.display = 'flex';
+    };
+}
+
+// Обработчик для кнопки разрешения
+allowButton.addEventListener('click', function() {
+    video.muted = false; // Включаем звук
+    video.play(); // Запускаем видео
+    popup.style.display = 'none'; // Скрываем всплывающее окно
+    // Сохраняем информацию о том, что пользователь разрешил воспроизведение
+    localStorage.setItem('videoPermission', 'allowed');
+});
+
+// Обработчик для кнопки отказа
+denyButton.addEventListener('click', function() {
+    popup.style.display = 'none'; // Просто скрываем всплывающее окно
+    // Сохраняем информацию о том, что пользователь отказался от воспроизведения
+    localStorage.setItem('videoPermission', 'denied');
+});
+
 </script>
 {% endblock %}

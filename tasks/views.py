@@ -10,6 +10,7 @@ from groups.models import Group  # Импортируй свою модель г
 from django.urls import reverse
 from django.db.models import Prefetch
 from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
@@ -101,6 +102,7 @@ def join_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     if request.user not in task.user.all():
         task.user.add(request.user)
+        task.update_status_from_users()
         messages.success(request, "You've joined the task!")
     return redirect('groups:group_detail', id=task.group.id, slug=task.group.slug)
 
@@ -109,6 +111,9 @@ def leave_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     if request.user in task.user.all():
         task.user.remove(request.user)
+        if task.user.count() == 0:
+            task.status = task.STATUS_WAITING
+            task.save(update_fields=['status'])
         messages.success(request, "You've left the task.")
     return redirect('groups:group_detail', id=task.group.id, slug=task.group.slug)
 
@@ -163,6 +168,33 @@ def change_subtask_status(request, subtask_id):
             messages.success(request, "Subtask status updated!")
     
     return redirect('groups:group_detail', id=subtask.task.group.id, slug=subtask.task.group.slug)
+
+@require_POST
+@login_required
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    if (
+        request.user != task.creator and
+        request.user not in task.group.admin.all() and
+        request.user != task.group.creator
+    ):
+        return HttpResponseForbidden('U cant delete this task!')
+    
+    task.delete()
+    return redirect('groups:groups')
+
+
+@login_required
+def delete_subtask(request, subtask_id):
+    ru = request.user
+    subtask = get_object_or_404(SubTask, id=subtask_id)
+    task = subtask.task
+    if ru == task.group.creator or ru in task.group.admins.all() or ru == subtask.creator:
+        subtask.delete()
+        return redirect('groups:groups')
+    else:
+        return HttpResponseForbidden("You do not have permission to delete this subtask.")
+
 
 @login_required
 def user_tasks(request):

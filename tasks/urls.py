@@ -25,5 +25,7 @@ urlpatterns = [
     path('leave_task/<int:task_id>/', views.leave_task, name='leave_task'),
     path('join_subtask/<int:subtask_id>/', views.join_subtask, name='join_subtask'),
     path('leave_subtask/<int:subtask_id>/', views.leave_subtask, name='leave_subtask'),
-    path('mytasks/', views.user_tasks, name = 'user_tasks')
+    path('mytasks/', views.user_tasks, name = 'user_tasks'),
+    path('delete_task/<int:task_id>/', views.delete_task, name='delete_task'),
+    path('subdelete/<int:subtask_id>/', views.delete_subtask, name='delete_subtask')
 ]

@@ -185,13 +185,14 @@ class FriendRequest(models.Model):
 
         Friendship.objects.create(user1=self.user_from, user2=self.user_to)
         Friendship.objects.create(user1=self.user_to, user2=self.user_from)  # Обе записи для двусторонней дружбы
+        
     def reject(self):
-        self.status = 'rejected'
-        self.save()
+        self.delete()
 
     def cancel(self):
-        self.status = 'cancelled'
-        self.save()
+        self.delete()
+        # self.status = 'cancelled'  # В будущем для расширения подойдет а пока нафик delete делаем
+        # self.save()
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')

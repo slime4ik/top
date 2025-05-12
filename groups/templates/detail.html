@@ -39,7 +39,7 @@
                 <h1 class="group-title">{{ group.name }}</h1>
             
                 <div class="group-about-compact">
-                    <h2 class="about-title"><i class="fas fa-info-circle"></i> Описание</h2>
+                    <h2 class="about-title"><i class="fas fa-info-circle"></i> Description</h2>
                     <p class="about-text">{{ group.about|linebreaksbr }}</p>
                 </div>
                 
@@ -77,11 +77,17 @@
                     <a href="{% url 'groups:leave_group' group.id group.slug %}" class="action-btn manage-btn">
                         <i class="fa-solid fa-right-from-bracket"></i> Leave Group
                     </a>
+
                     {% if request.user == group.creator or request.user in group.admins.all %}
                         <a href="{% url 'groups:group_edit' group.id %}" class="action-btn manage-btn">
                             <i class="fas fa-cog"></i> Manage Group
                         </a>
-                        
+                        {% if user == group.creator or user in group.admins.all %}
+                        <form method="POST" action="{% url 'groups:refresh_group_code' group.id group.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn copy-btn"><i class="fa-solid fa-rotate-right"></i> Refresh code</button>
+                        </form>
+                        {% endif %}
                         <div class="group-code-section">
                             <button class="action-btn code-btn" id="toggle-code">
                                 <i class="fas fa-eye"></i> Show Code
@@ -112,9 +118,10 @@
                     {% for task in page_obj.object_list %}
                         <div class="task-card" data-status="{{ task.status }}">
                             <div class="task-main-info">
-                                <h3 class="task-title">
+                                <h3 id="task-{{ task.id }}" class="task-title">
                                     <a href="{% url 'tasks:task_detail' task.id task.group.slug %}">{{ task.title }}</a>
                                 </h3>
+                                
                                 <div style="
                                 display: inline-block;
                                 padding: 4px 8px;
@@ -126,6 +133,13 @@
                                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                                 margin-left: 8px;
                             ">
+                                    <!-- Прогресс-бар для задачи -->
+                                        {% if task.subtasks.exists %}
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: {{ task.completion_percentage }}%"></div>
+        </div>
+        <p>Task completed is {{ task.completion_percentage|floatformat:2 }}%</p>
+                                        {%endif%}
                                 {% if task.dead_line %}
                                     <i class="fas fa-clock" style="margin-right: 4px;"></i>
                                     {{ task.dead_line|date:"d M Y H:i" }}
@@ -146,9 +160,11 @@
                                     <form method="post" action="{% url 'tasks:change_task_status' task.id %}">
                                         {% csrf_token %}
                                         <select name="status" class="status-select" onchange="this.form.submit()" 
-                                                {% if request.user not in task.user.all %}disabled{% endif %}>
+                                                {% if request.user not in task.user.all or task.is_past_deadline %}disabled{% endif %}>
                                             {% for value, name in task.STATUS_CHOICES %}
-                                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ name }}</option>
+                                                {% if value == 'in_progress' or value == 'done' %}
+                                                    <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ name }}</option>
+                                                {% endif %}
                                             {% endfor %}
                                         </select>
                                     </form>
@@ -162,6 +178,14 @@
                                 {% endthumbnail %}
                                 <span class="task-creator-name">Created by {{ task.creator.nickname }}</span>
                                 <span class="task-date">{{ task.created_at|date:"M d, Y" }}</span>
+                                {% if task.can_be_deleted %}
+                                <form action="{% url 'tasks:delete_task' task.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="action-btn manage-btn">
+                                        <i class="fa-solid fa-trash"></i> Delete task
+                                    </button>
+                                </form>
+                            {% endif %}
                             </div>
 
                             {% if task.description %}
@@ -297,6 +321,7 @@
 
                             <div class="task-meta">
                                 <div class="task-participation">
+                                    {% if task.has_subtasks %}
                                     {% if request.user in task.user.all %}
                                         <form method="post" action="{% url 'tasks:leave_task' task.id %}">
                                             {% csrf_token %}
@@ -305,12 +330,14 @@
                                             </button>
                                         </form>
                                     {% else %}
+
                                         <form method="post" action="{% url 'tasks:join_task' task.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="task-action-btn join-btn">
                                                 <i class="fas fa-tasks"></i> Do Task!
                                             </button>
                                         </form>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                                 <div class="task-executors">
@@ -370,6 +397,14 @@
                                                                 </select>
                                                             </form>
                                                         </div>
+                                                        {% endif %}
+                                                        {% if subtask.can_be_deleted %}
+                                                        <form action="{% url 'tasks:delete_subtask' subtask.id %}" method="post">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="action-btn manage-btn">
+                                                                <i class="fa-solid fa-trash"></i> Delete subtask
+                                                            </button>
+                                                        </form>
                                                         {% endif %}
                                                     </div>
                                                     
@@ -2650,7 +2685,19 @@ body, html {
 .open-chat-button:hover {
     background-color: #2980b9;
 }
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0; /* Серый фон */
+    border-radius: 10px;
+    overflow: hidden;
+}
 
+.progress-bar {
+    height: 100%;
+    background-color: #4caf50; /* Зеленый цвет прогресса */
+    transition: width 0.5s ease-in-out; /* Плавный переход */
+}
 </style>
 {% endblock %}
 
